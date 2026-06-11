@@ -4,8 +4,8 @@ import types
 import tempfile
 from unittest import TestCase
 
-from danfse_nt008.models import CONSULTA_PUBLICA_URL
-from danfse_nt008.xml import (
+from danfse_brasil.models import CONSULTA_PUBLICA_URL
+from danfse_brasil.xml import (
     parse_complementary_info,
     parse_customer,
     parse_danfse,
@@ -19,11 +19,12 @@ from danfse_nt008.xml import (
     parse_total,
     parse_receipt,
 )
-from danfse_nt008.html import render_danfse_html, render_header_html
-from danfse_nt008.pdf import render_header_pdf
-from danfse_nt008.compliance import REQUIRED_FONTS
-from danfse_nt008.municipalities import describe_municipality_state
-from danfse_nt008.validation import validate_danfse_data, validate_layout_constants
+from danfse_brasil.html import render_danfse_html, render_header_html
+from danfse_brasil.pdf import render_header_pdf
+from danfse_brasil.compliance import REQUIRED_FONTS
+from danfse_brasil.formatting import format_cnpj
+from danfse_brasil.municipalities import describe_municipality_state
+from danfse_brasil.validation import validate_danfse_data, validate_layout_constants
 
 
 class HeaderParsingTest(TestCase):
@@ -47,6 +48,23 @@ class HeaderParsingTest(TestCase):
         self.assertEqual(self.data.issuer, "Prestador")
         self.assertEqual(self.data.status, "NFS-e Gerada")
         self.assertEqual(self.data.purpose, "-")
+
+    def test_extracts_nt009_fin_nfse_from_inf_dps(self):
+        xml_path = Path(__file__).resolve().parents[1] / "xml.xml"
+        xml = xml_path.read_text(encoding="utf-8").replace(
+            "<cLocEmi>4208203</cLocEmi>",
+            "<cLocEmi>4208203</cLocEmi><finNFSe>1</finNFSe>",
+            1,
+        )
+        with tempfile.NamedTemporaryFile("w", suffix=".xml", encoding="utf-8", delete=False) as tmp:
+            tmp.write(xml)
+            tmp_path = Path(tmp.name)
+        try:
+            data = parse_header(tmp_path)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+        self.assertEqual(data.purpose, "NFS-e de crédito")
 
     def test_builds_header_context(self):
         self.assertEqual(self.data.municipality_line, "Município: ITAJAÍ / SC")
@@ -119,6 +137,26 @@ class HeaderParsingTest(TestCase):
         self.assertEqual(provider.email, "br241-nfe.brazil@msc.com")
         self.assertEqual(provider.simples_nacional, "Não Optante")
         self.assertEqual(provider.sn_tax_regime, "-")
+
+    def test_extracts_nt009_optante_pendente_simples_nacional(self):
+        xml_path = Path(__file__).resolve().parents[1] / "xml.xml"
+        xml = xml_path.read_text(encoding="utf-8").replace(
+            "<opSimpNac>1</opSimpNac>",
+            "<opSimpNac>4</opSimpNac>",
+            1,
+        )
+        with tempfile.NamedTemporaryFile("w", suffix=".xml", encoding="utf-8", delete=False) as tmp:
+            tmp.write(xml)
+            tmp_path = Path(tmp.name)
+        try:
+            provider = parse_danfse(tmp_path).provider
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+        self.assertEqual(provider.simples_nacional, "Optante Pendente")
+
+    def test_preserves_nt009_alphanumeric_cnpj(self):
+        self.assertEqual(format_cnpj("12ABC34501DE35"), "12ABC34501DE35")
 
     def test_extracts_customer_fields(self):
         customer = parse_customer(Path(__file__).resolve().parents[1] / "xml.xml")
@@ -219,6 +257,53 @@ class HeaderParsingTest(TestCase):
         self.assertIn("Federais: R$ 163.96", complementary.text)
         self.assertIn("Estaduais: R$ 0.00", complementary.text)
         self.assertIn("Municipais: R$ 32.55", complementary.text)
+
+    def test_extracts_nt009_v_ajuste_bc_documents(self):
+        xml_path = Path(__file__).resolve().parents[1] / "xml.xml"
+        ajuste_bc = (
+            "<vAjusteBC><documentos><docAjusteBC>"
+            "<vTotDoc>10.00</vTotDoc><vAjuteAplic>10.00</vAjuteAplic>"
+            "</docAjusteBC></documentos></vAjusteBC>"
+        )
+        xml = xml_path.read_text(encoding="utf-8").replace(
+            "<vServPrest>",
+            f"{ajuste_bc}<vServPrest>",
+            1,
+        )
+        with tempfile.NamedTemporaryFile("w", suffix=".xml", encoding="utf-8", delete=False) as tmp:
+            tmp.write(xml)
+            tmp_path = Path(tmp.name)
+        try:
+            municipal = parse_municipal_taxation(tmp_path)
+            ibs_cbs = parse_ibs_cbs_taxation(tmp_path)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+        self.assertEqual(municipal.total_deductions_reductions, "10.00")
+        self.assertEqual(ibs_cbs.exclusions_reductions, "159.32")
+
+    def test_extracts_nt009_v_ajuste_bc_issqn_values(self):
+        xml_path = Path(__file__).resolve().parents[1] / "xml.xml"
+        ajuste_bc = (
+            "<vAjusteBC>"
+            "<vAjusteBCISSQN>10.00</vAjusteBCISSQN>"
+            "<vCalcAjusteBCISSQN>2.50</vCalcAjusteBCISSQN>"
+            "</vAjusteBC>"
+        )
+        xml = xml_path.read_text(encoding="utf-8").replace(
+            "<vServPrest>",
+            f"{ajuste_bc}<vServPrest>",
+            1,
+        )
+        with tempfile.NamedTemporaryFile("w", suffix=".xml", encoding="utf-8", delete=False) as tmp:
+            tmp.write(xml)
+            tmp_path = Path(tmp.name)
+        try:
+            municipal = parse_municipal_taxation(tmp_path)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+        self.assertEqual(municipal.total_deductions_reductions, "12.50")
 
     def test_extracts_receipt_fields(self):
         receipt = parse_receipt(Path(__file__).resolve().parents[1] / "xml.xml")

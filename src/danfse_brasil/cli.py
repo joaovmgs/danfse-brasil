@@ -13,7 +13,7 @@ from .xml import parse_danfse
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Gera o DANFSe conforme a NT 008.")
+    parser = argparse.ArgumentParser(description="Gera o DANFSe conforme as notas tecnicas da NFS-e nacional.")
     parser.add_argument("xml", type=Path, help="Arquivo XML da NFS-e.")
     parser.add_argument("-o", "--output", type=Path, default=Path("danfse-header.pdf"))
     parser.add_argument(

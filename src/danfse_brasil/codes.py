@@ -24,12 +24,15 @@ CSTAT = {
 
 FIN_NFSE = {
     "0": "NFS-e regular",
+    "1": "NFS-e de crédito",
+    "2": "NFS-e de débito",
 }
 
 OP_SIMP_NAC = {
     "1": "Não Optante",
     "2": "Optante - Microempreendedor Individual (MEI)",
     "3": "Optante - Microempresa ou Empresa de Pequeno Porte (ME/EPP)",
+    "4": "Optante Pendente",
 }
 
 REG_AP_TRIB_SN = {
@@ -98,7 +101,7 @@ TP_RET_PIS_COFINS = {
 
 
 def describe(mapping: dict[str, str], value: str | None) -> str:
-    if value is None or value == "":
+    if value is None or value == "" or value == MISSING_VALUE:
         return MISSING_VALUE
     if value not in mapping:
         raise InvalidNFSeXmlError(f"Codigo sem descricao normativa mapeada: {value}")

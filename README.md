@@ -1,10 +1,13 @@
-# danfse-nt008
+# danfse-brasil
 
-Biblioteca Python para gerar o DANFSe a partir do XML nacional da NFS-e, seguindo a Nota Tecnica No 008 SE/CGNFS-e de 05/05/2026.
+Biblioteca Python para gerar o DANFSe a partir do XML nacional da NFS-e, seguindo a Nota Tecnica No 008 SE/CGNFS-e de 05/05/2026 e mantendo compatibilidade com evolucoes pontuais da NT 009.
 
 > Alerta
 > Esta implementacao foi escrita seguindo a documentacao oficial da NT 008:
 > https://www.gov.br/nfse/pt-br/biblioteca/documentacao-tecnica/rtc/nt-008-se-cgnfse-danfse-20260505.pdf
+>
+> Ajustes de compatibilidade com a NT 009:
+> https://www.gov.br/nfse/pt-br/biblioteca/documentacao-tecnica/rtc/nt-009-se-cgnfse-v1-0-1.pdf
 >
 > O PDF e os campos foram validados por implementacao local e testes da biblioteca, mas esta versao ainda nao foi homologada em um validador oficial externo.
 
@@ -14,7 +17,7 @@ O objetivo do projeto e reproduzir o DANFSe com os caminhos XML, descricoes, med
 
 Este projeto e publicado com uma licenca de uso propria, incluida em [LICENSE](LICENSE).
 
-Uso comercial exige mencao visivel de que o produto, servico ou distribuicao utiliza `danfse-nt008`.
+Uso comercial exige mencao visivel de que o produto, servico ou distribuicao utiliza `danfse-brasil`.
 
 ## Requisitos
 
@@ -56,7 +59,7 @@ Se o MSYS2 estiver em outro caminho, defina `WEASYPRINT_DLL_DIRECTORIES` apontan
 ### 4. Instale as dependencias da biblioteca
 
 ```powershell
-cd "C:\caminho\para\danfse-nt008"
+cd "C:\caminho\para\danfse-brasil"
 uv sync
 ```
 
@@ -65,19 +68,19 @@ uv sync
 Gerar PDF:
 
 ```powershell
-uv run danfse-nt008 xml.xml --output danfse.pdf
+uv run danfse-brasil xml.xml --output danfse.pdf
 ```
 
 Gerar HTML:
 
 ```powershell
-uv run danfse-nt008 xml.xml --output danfse.html
+uv run danfse-brasil xml.xml --output danfse.html
 ```
 
 Modo estrito de fontes:
 
 ```powershell
-uv run danfse-nt008 xml.xml --output danfse.pdf --strict-fonts
+uv run danfse-brasil xml.xml --output danfse.pdf --strict-fonts
 ```
 
 ## Exemplo em Python
@@ -85,7 +88,7 @@ uv run danfse-nt008 xml.xml --output danfse.pdf --strict-fonts
 ```python
 from pathlib import Path
 
-from danfse_nt008 import parse_danfse, render_danfse_pdf, validate_danfse_data
+from danfse_brasil import parse_danfse, render_danfse_pdf, validate_danfse_data
 
 data = parse_danfse("xml.xml")
 issues = validate_danfse_data(data)
@@ -100,7 +103,7 @@ else:
 ## Exemplo de validacao
 
 ```python
-from danfse_nt008 import parse_danfse, validate_danfse_data
+from danfse_brasil import parse_danfse, validate_danfse_data
 
 data = parse_danfse("xml.xml")
 issues = validate_danfse_data(data)
@@ -146,6 +149,15 @@ Se a fonte nao estiver instalada, a CLI avisa. Para checagem mais rigorosa, use 
 - Linha PIS/COFINS da Tributacao Federal impressa somente para competencia ate o fim do ano-calendario de 2026, conforme nota 6
 - Informacoes Complementares montadas na ordem definida pela NT
 - Validador de medidas, tamanhos maximos de campos e regras condicionais implementadas
+
+## Compatibilidade NT 009
+
+- CNPJ alfanumerico e preservado sem formatacao quando nao for composto apenas por 14 digitos.
+- `finNFSe` tambem e lido no caminho `NFSe/infNFSe/DPS/infDPS/finNFSe`.
+- `opSimpNac = 4` e descrito como `Optante Pendente`.
+- O grupo `vAjusteBC` e considerado nos campos de deducoes/reducoes quando presente.
+
+Essas compatibilidades nao alteram o layout visual do DANFSe definido na NT 008 e nao autorizam fallback automatico entre `emit` e `prest`.
 
 ## Desenvolvimento
 
