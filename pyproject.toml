@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "danfse-nt008"
+version = "0.1.0"
+description = "Geracao do DANFSe conforme NT 008 SE/CGNFS-e."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Projeto DANFSe" }]
+dependencies = [
+  "qrcode[pil]>=7.4",
+  "weasyprint>=61.0",
+]
+
+[project.scripts]
+danfse-nt008 = "danfse_nt008.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/danfse_nt008"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

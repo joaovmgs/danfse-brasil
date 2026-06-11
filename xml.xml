@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><NFSe xmlns="http://www.sped.fazenda.gov.br/nfse" xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" versao="1.00"><infNFSe Id="NFS42082031202378779002233000000064529626050261847801"><xLocEmi>ITAJAÍ</xLocEmi><xLocPrestacao>ITAJAÍ</xLocPrestacao><nNFSe>645296</nNFSe><cLocIncid>4208203</cLocIncid><xLocIncid>ITAJAÍ</xLocIncid><xTribNac>10.06.01 Agenciamento marítimo.</xTribNac><verAplic>04.01.51.0003</verAplic><ambGer>1</ambGer><tpEmis>2</tpEmis><cStat>100</cStat><dhProc>2026-05-29T17:43:37-03:00</dhProc><nDFSe>645296</nDFSe><emit><CNPJ>02378779002233</CNPJ><IM>290355</IM><xNome>MSC MEDITERRANEAN SHIPPING DO BRASIL LTDA</xNome><xFant>MSC MEDITERRANEAN SHIPPING DO BRASIL LTDA</xFant><enderNac><xLgr>CORONEL MARCOS KONDER</xLgr><nro>1207</nro><xCpl>SALA 111</xCpl><xBairro>CENTRO</xBairro><cMun>4208203</cMun><UF>SC</UF><CEP>88301300</CEP></enderNac><fone>1332119500</fone><email>br241-nfe.brazil@msc.com</email></emit><valores><vBC>1219.00</vBC><pAliqAplic>3.00</pAliqAplic><vISSQN>36.57</vISSQN><vLiq>1219.00</vLiq></valores><DPS versao="1.00"><infDPS Id="DPS420820320237877900223305000000000000738945"><tpAmb>1</tpAmb><dhEmi>2026-05-29T03:10:04-03:00</dhEmi><verAplic>04.01.51.0003</verAplic><serie>5000</serie><nDPS>738945</nDPS><dCompet>2026-05-29</dCompet><tpEmit>1</tpEmit><cLocEmi>4208203</cLocEmi><prest><CNPJ>02378779002233</CNPJ><IM>290355</IM><fone>1332119500</fone><email>br241-nfe.brazil@msc.com</email><regTrib><opSimpNac>1</opSimpNac><regEspTrib>0</regEspTrib></regTrib></prest><toma><CNPJ>12487655000387</CNPJ><IM>312352</IM><xNome>INEOS STYROLUTION DO BRASIL POLIMEROS LTDA</xNome><end><endNac><cMun>4208203</cMun><CEP>88316300</CEP></endNac><xLgr>ITAIPAVA</xLgr><nro>850</nro><xCpl>SALA 05</xCpl><xBairro>ITAIPAVA</xBairro></end><fone>4839522448</fone><email>sabrina.burchardt@pibernat.com.br</email></toma><serv><locPrest><cLocPrestacao>4208203</cLocPrestacao></locPrest><cServ><cTribNac>100601</cTribNac><xDescServ>MSC -  Taxa de liberacao, emissao e emolumentos de conhecimento de embarque
+NAVIO: WIDE HOTEL - Impo - BL: MEDUWN601390 - CNTRs: TXGU6508785
+MSC -  Taxa de tramites para entrega do conhecimento de embarque no Brasil</xDescServ><cNBS>106070000</cNBS><cIntContrib>49854877</cIntContrib></cServ><infoCompl><xInfComp>| Natureza da operação: 101 - ISS devido a Itajaí, a ser recolhido pelo prestador do serviçoMSC - Taxa de liberacao, emissao e emolumentos de conhecimento de embarqueNAVIO: WIDE HOTEL - Impo - BL: MEDUWN601390 - CNTRs: TXGU6508785MSC - Taxa de tramites para entrega do conhecimento de embarque no Brasil | - Consulte a autenticidade desta Nota Fiscal no portal da NFS-e de Itajaí: http://nfse.itajai.sc.gov.br/- Documento Fiscal emitido por contribuinte NÃO optante pelo Simples Nacional</xInfComp></infoCompl></serv><valores><vServPrest><vServ>1219.00</vServ></vServPrest><trib><tribMun><tribISSQN>1</tribISSQN><tpRetISSQN>1</tpRetISSQN></tribMun><tribFed><piscofins><CST>01</CST><vBCPisCofins>1219.00</vBCPisCofins><pAliqPis>7.60</pAliqPis><pAliqCofins>1.65</pAliqCofins><vPis>92.64</vPis><vCofins>20.11</vCofins><tpRetPisCofins>0</tpRetPisCofins></piscofins></tribFed><totTrib><vTotTrib><vTotTribFed>163.96</vTotTribFed><vTotTribEst>0.00</vTotTribEst><vTotTribMun>32.55</vTotTribMun></vTotTrib></totTrib></trib></valores></infDPS></DPS></infNFSe><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#NFS42082031202378779002233000000064529626050261847801"><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>wxVlmangxlFeh5v+h5ohWCdrLIw=</DigestValue></Reference></SignedInfo><SignatureValue>EQV1nAn8vR53jIHrffFae0zIAAwvCchYUu44YXEN3eyb7UAmlfQjAEco8SrFjxZgBCiE1SeKDdcX
+I2eH+yzfw8gOHW0WJOJuIr/PY9qw3FvJY4stVEVuTJIejq3bBktWvYqIBFWe+Drxx5DccWZZDz8t
+8bxv6+OQVu7OApwnGGik7d0fp+fEFVWVEd+xuednFOsxK60klYsbZ33BoWfPdp19ywojkZY2h6Vw
+qexB3jCz7zXHu6Q6UchobTuakdshRllQX/ygAt1w+lSrFoUQSNB+Px1J0FArItR/UoTPFjyfYFA3
++9c0LuH43byDXsRFPUcztplDcFJgOnU4GQdzKQ==</SignatureValue><KeyInfo><X509Data><X509Certificate>MIIHzzCCBbegAwIBAgIUUr2DqMKpMCNnAN83AtvgPnEpb4kwDQYJKoZIhvcNAQELBQAwejELMAkG
+A1UEBhMCQlIxEzARBgNVBAoTCklDUC1CcmFzaWwxNjA0BgNVBAsTLVNlY3JldGFyaWEgZGEgUmVj
+ZWl0YSBGZWRlcmFsIGRvIEJyYXNpbCAtIFJGQjEeMBwGA1UEAxMVQUMgRElHSVRBTFNJR04gUkZC
+IEczMB4XDTI2MDExNDIxMTQwMFoXDTI3MDExNDIxMTQwMFowgesxCzAJBgNVBAYTAkJSMRMwEQYD
+VQQKDApJQ1AtQnJhc2lsMQswCQYDVQQIDAJTQzEPMA0GA1UEBwwGSXRhamFpMTYwNAYDVQQLDC1T
+ZWNyZXRhcmlhIGRhIFJlY2VpdGEgRmVkZXJhbCBkbyBCcmFzaWwgLSBSRkIxFjAUBgNVBAsMDVJG
+QiBlLUNOUEogQTExFzAVBgNVBAsMDjIwNjEzNDk2MDAwMTg2MRMwEQYDVQQLDApwcmVzZW5jaWFs
+MSswKQYDVQQDDCJNVU5JQ0lQSU8gREUgSVRBSkFJOjgzMTAyMjc3MDAwMTUyMIIBIjANBgkqhkiG
+9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7wVedQnx3YzYtmFl05dHN8EjvSh3yns3gU0j9/hvObXM2Eoe
+83A9mKpBga3TlQ7xdVEmVH1TcG4vt/2y/lSP9S6McNn21RUOwu1XeIPHGvZ6GWL6iyO+DX2urBdJ
+jJo06FDErpc2/n4qZbLgINPkW63XR1PPs916NEVcKt8valnLX199d51V+P1tHRIyFeEqnID7Oke1
+/xJVeHk4RymleimQPijTlcqOdoj1+PGTF/MmGbEgq8ZlaxWjqfo/7xO1Vu1NsOPjmv+6z+1tDf5f
+bsLtI2h0tF1KTFwUaqPFiYa0Y9WcDOy08Abxyi3UrF6zoQa0tWGU1hQcv/cgn4ywNQIDAQABo4IC
+2TCCAtUwCQYDVR0TBAIwADAfBgNVHSMEGDAWgBTduLXdAty4UMp+BlRDwX78rvStezCBqAYIKwYB
+BQUHAQEEgZswgZgwXQYIKwYBBQUHMAKGUWh0dHA6Ly93d3cuZGlnaXRhbHNpZ25jZXJ0aWZpY2Fk
+b3JhLmNvbS5ici9yZXBvc2l0b3Jpby9yZmIvQUNESUdJVEFMU0lHTlJGQkczLnA3YjA3BggrBgEF
+BQcwAYYraHR0cDovL29jc3AuZGlnaXRhbHNpZ25jZXJ0aWZpY2Fkb3JhLmNvbS5icjBdBgNVHSAE
+VjBUMFIGBmBMAQIBLDBIMEYGCCsGAQUFBwIBFjpodHRwOi8vd3d3LmRpZ2l0YWxzaWduY2VydGlm
+aWNhZG9yYS5jb20uYnIvcmVwb3NpdG9yaW8vcmZiMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEF
+BQcDBDCBsQYDVR0fBIGpMIGmMFegVaBThlFodHRwOi8vd3d3LmRpZ2l0YWxzaWduY2VydGlmaWNh
+ZG9yYS5jb20uYnIvcmVwb3NpdG9yaW8vcmZiL0FDRElHSVRBTFNJR05SRkJHMy5jcmwwS6BJoEeG
+RWh0dHA6Ly93d3cuZGlnaXRhbHRydXN0LmNvbS5ici9yZXBvc2l0b3Jpby9yZmIvQUNESUdJVEFM
+U0lHTlJGQkczLmNybDAOBgNVHQ8BAf8EBAMCBeAwgbkGA1UdEQSBsTCBroEedGhpYWdvLm1pZ3Vl
+bEBpdGFqYWkuc2MuZ292LmJyoDgGBWBMAQMEoC8ELTIxMDYxOTc4MDI0OTAwNDA5NzkwMDAwMDAw
+MDAwMDAwMDAwMDAwMDAwMDAwMKAeBgVgTAEDAqAVBBNST0JJU09OIEpPU0UgQ09FTEhPoBkGBWBM
+AQMDoBAEDjgzMTAyMjc3MDAwMTUyoBcGBWBMAQMHoA4EDDAwMDAwMDAwMDAwMDANBgkqhkiG9w0B
+AQsFAAOCAgEAMcY8tJ+R7nR2Ar/hJ7UX5Rw7wMkMBdZ/wywYNnMsrA9aC6MstpvPbwCD279KsZIA
+9i/Ne3WYJjikq8mBkqN4iAUReYT15gXnJj+WC54khe2kFGYYj53lPKXqdtUeI6i7Do5b35Qir89W
+LNQfp7pKAo39mjdI04YjFfFEjVKNw/LXSYIUtIYr6hHDpEFni5SPC6GSXWJX4zNupsuwCQzD062T
+zHSz5uYTKiN4EI1Xq1Lr1G7JOvRsTMxn+vsLvoalXQdTN8N5elj7w0LpuwFilvwX7VkHeMlttCZN
+saEJnSHUy+tVpOXKqXqSFNHPE1vRQF7VKrkvxYPGTokzDC0FmEbe4rk3M2degwb9rNHh+t63C0qw
+qpqyTwWWvCxgvZBJjnYEOSCajnHeq9qay81Sv/d9nruc/N1Jbx/3GmkcCYXZiESiBXTXH8L/2VtG
+yJO3p/8qL3Bd+9qpLgP/Y4jerkuAQXSJ2856XNES58wyEK5v512bSxkmc57qTZd2sxP8f0yfKUV4
+qamSttNx/m/aOhZqzNpOyaTNHxpRa27BE7KA29hmSiewrN/vp08GTEiI365aazj1O+NXxeF2ABKa
+6Gp0p2zz3Gz0c8djTBC8z1vdoal/ueSYza1NjbaK0vgHd6W7ciKaqOb0+dpSZnUArayyG+PLppmr
+rPI44SKpkds=</X509Certificate></X509Data></KeyInfo></Signature></NFSe>
