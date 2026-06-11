@@ -134,7 +134,13 @@ def _parse_header(inf_nfse: ET.Element, inf_dps: ET.Element) -> HeaderData:
 
     access_key = strip_nfse_prefix(inf_nfse.attrib.get("Id"))
     status = describe(CSTAT, _text(inf_nfse, "cStat"))
-    purpose = describe(FIN_NFSE, _text(ibscbs, "finNFSe") if ibscbs is not None else None)
+    purpose = describe(
+        FIN_NFSE,
+        first_present(
+            _text(inf_dps, "finNFSe"),
+            _text(ibscbs, "finNFSe") if ibscbs is not None else None,
+        ),
+    )
 
     return HeaderData(
         access_key=access_key,
@@ -580,19 +586,41 @@ def _incidence_location(inf_nfse: ET.Element, trib_mun: ET.Element | None) -> st
 
 
 def _total_deductions_reductions(inf_nfse: ET.Element, inf_dps: ET.Element) -> str:
-    direct_value = _first_present_value(
-        _text(_child(inf_dps, "valores"), "vDedRed"),
+    valores_dps = _child(inf_dps, "valores")
+    ajuste_bc = _child(valores_dps, "vAjusteBC")
+    legacy_direct_value = _first_present_value(
+        _text(valores_dps, "vDedRed"),
         _path_text(inf_nfse, "IBSCBS", "valores", "vDR"),
         _path_text(inf_dps, "IBSCBS", "valores", "vDR"),
     )
-    if direct_value != MISSING_VALUE:
-        return direct_value
+    if legacy_direct_value != MISSING_VALUE:
+        return legacy_direct_value
+
+    nt009_adjustment = _sum_decimal_strings(
+        _text(ajuste_bc, "vAjusteBCISSQN"),
+        _text(ajuste_bc, "vCalcAjusteBCISSQN"),
+        _sum_adjustment_documents(ajuste_bc),
+    )
+    if nt009_adjustment != MISSING_VALUE:
+        return nt009_adjustment
+
     return _sum_decimal_strings(
-        _text(_child(inf_dps, "valores"), "vCalcDR"),
-        _text(_child(inf_dps, "valores"), "vCalcReeRepRes"),
+        _text(valores_dps, "vCalcDR"),
+        _text(valores_dps, "vCalcReeRepRes"),
         _text(_child(inf_nfse, "valores"), "vCalcDR"),
         _text(_child(inf_nfse, "valores"), "vCalcReeRepRes"),
     )
+
+
+def _sum_adjustment_documents(ajuste_bc: ET.Element | None) -> str:
+    documents = _child(ajuste_bc, "documentos")
+    if documents is None:
+        return MISSING_VALUE
+    values = [
+        _text(doc, "vAjuteAplic")
+        for doc in _children(documents, "docAjusteBC")
+    ]
+    return _sum_or_missing(*values)
 
 
 def _first_present_value(*values: str | None) -> str:
@@ -647,9 +675,11 @@ def _ibs_cbs_operation_indicator(ibscbs_dps: ET.Element | None, ibscbs_nfse: ET.
 def _ibs_cbs_exclusions_reductions(inf_nfse: ET.Element, inf_dps: ET.Element) -> str:
     valores_dps = _child(inf_dps, "valores")
     valores_nfse = _child(inf_nfse, "valores")
+    ajuste_bc = _child(valores_dps, "vAjusteBC")
     piscofins = _path(valores_dps, "trib", "tribFed", "piscofins")
     return _sum_or_missing(
         _path_text(valores_dps, "vDescCondIncond", "vDescIncond"),
+        _sum_adjustment_documents(ajuste_bc),
         _path_text(inf_nfse, "IBSCBS", "valores", "vCalcReeRepRes"),
         _text(valores_nfse, "vISSQN"),
         _text(piscofins, "vPis"),
@@ -712,6 +742,12 @@ def _child(element: ET.Element | None, name: str) -> ET.Element | None:
         if _local_name(child.tag) == name:
             return child
     return None
+
+
+def _children(element: ET.Element | None, name: str) -> list[ET.Element]:
+    if element is None:
+        return []
+    return [child for child in element if _local_name(child.tag) == name]
 
 
 def _path(element: ET.Element | None, *names: str) -> ET.Element | None:

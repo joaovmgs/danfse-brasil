@@ -1,4 +1,4 @@
-"""DANFSe generation helpers for NT 008 SE/CGNFS-e."""
+"""DANFSe generation helpers for the Brazilian national NFS-e layout."""
 
 from .html import render_danfse_html, render_header_html
 from .models import (

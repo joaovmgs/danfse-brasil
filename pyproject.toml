@@ -3,9 +3,9 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [project]
-name = "danfse-nt008"
+name = "danfse-brasil"
 version = "0.1.0"
-description = "Geracao do DANFSe conforme NT 008 SE/CGNFS-e."
+description = "Geracao do DANFSe conforme as notas tecnicas da NFS-e nacional."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
@@ -16,10 +16,11 @@ dependencies = [
 ]
 
 [project.scripts]
-danfse-nt008 = "danfse_nt008.cli:main"
+danfse-brasil = "danfse_brasil.cli:main"
+danfse-nt008 = "danfse_brasil.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/danfse_nt008"]
+packages = ["src/danfse_brasil"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

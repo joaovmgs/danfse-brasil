@@ -194,7 +194,7 @@ wheels = [
 ]
 
 [[package]]
-name = "danfse-nt008"
+name = "danfse-brasil"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
