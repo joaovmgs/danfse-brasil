@@ -53,7 +53,7 @@ class HeaderParsingTest(TestCase):
         xml_path = Path(__file__).resolve().parents[1] / "xml.xml"
         xml = xml_path.read_text(encoding="utf-8").replace(
             "<cLocEmi>4208203</cLocEmi>",
-            "<cLocEmi>4208203</cLocEmi><finNFSe>1</finNFSe>",
+            "<cLocEmi>4208203</cLocEmi><finNFSe>1</finNFSe><tpNFSeCredito>01</tpNFSeCredito>",
             1,
         )
         with tempfile.NamedTemporaryFile("w", suffix=".xml", encoding="utf-8", delete=False) as tmp:
@@ -65,6 +65,25 @@ class HeaderParsingTest(TestCase):
             tmp_path.unlink(missing_ok=True)
 
         self.assertEqual(data.purpose, "NFS-e de crédito")
+        self.assertEqual(data.credit_note_type, "Multa e juros")
+
+    def test_extracts_nt009_debit_note_type(self):
+        xml_path = Path(__file__).resolve().parents[1] / "xml.xml"
+        xml = xml_path.read_text(encoding="utf-8").replace(
+            "<cLocEmi>4208203</cLocEmi>",
+            "<cLocEmi>4208203</cLocEmi><finNFSe>2</finNFSe><tpNFSeDebito>04</tpNFSeDebito>",
+            1,
+        )
+        with tempfile.NamedTemporaryFile("w", suffix=".xml", encoding="utf-8", delete=False) as tmp:
+            tmp.write(xml)
+            tmp_path = Path(tmp.name)
+        try:
+            data = parse_header(tmp_path)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+        self.assertEqual(data.purpose, "NFS-e de débito")
+        self.assertEqual(data.debit_note_type, "Multa e juros")
 
     def test_builds_header_context(self):
         self.assertEqual(self.data.municipality_line, "Município: ITAJAÍ / SC")
@@ -142,18 +161,25 @@ class HeaderParsingTest(TestCase):
         xml_path = Path(__file__).resolve().parents[1] / "xml.xml"
         xml = xml_path.read_text(encoding="utf-8").replace(
             "<opSimpNac>1</opSimpNac>",
-            "<opSimpNac>4</opSimpNac>",
+            "<opSimpNac>4</opSimpNac><regApIBSCBSSN>2</regApIBSCBSSN>",
+            1,
+        ).replace(
+            "<cTribNac>100601</cTribNac>",
+            "<cTribNac>100601</cTribNac><cAtvSN>9</cAtvSN>",
             1,
         )
         with tempfile.NamedTemporaryFile("w", suffix=".xml", encoding="utf-8", delete=False) as tmp:
             tmp.write(xml)
             tmp_path = Path(tmp.name)
         try:
-            provider = parse_danfse(tmp_path).provider
+            document = parse_danfse(tmp_path)
         finally:
             tmp_path.unlink(missing_ok=True)
 
+        provider = document.provider
         self.assertEqual(provider.simples_nacional, "Optante Pendente")
+        self.assertEqual(provider.ibs_cbs_sn_tax_regime, "CBS apurada pelo SN e IBS apurado pelo regime regular")
+        self.assertIn("Fator R", document.service.simples_nacional_activity)
 
     def test_preserves_nt009_alphanumeric_cnpj(self):
         self.assertEqual(format_cnpj("12ABC34501DE35"), "12ABC34501DE35")
@@ -305,6 +331,54 @@ class HeaderParsingTest(TestCase):
 
         self.assertEqual(municipal.total_deductions_reductions, "12.50")
 
+    def test_extracts_nt009_ibs_cbs_adjustment_and_sn_totals(self):
+        xml_path = Path(__file__).resolve().parents[1] / "xml.xml"
+        nfse_ibscbs = (
+            "<IBSCBS><valores><vBC>100.00</vBC><vReceitaBrutaSN>100.00</vReceitaBrutaSN></valores>"
+            "<totCIBS><gTribSN><pIBSSN>0.10</pIBSSN><vIBSSN>1.00</vIBSSN>"
+            "<pCBSSN>0.90</pCBSSN><vCBSSN>9.00</vCBSSN></gTribSN></totCIBS></IBSCBS>"
+        )
+        dps_ibscbs = (
+            "<IBSCBS><indFinal>1</indFinal><valores><trib>"
+            "<gIBSCBSAjuste><vIBS>1.25</vIBS><vCBS>2.50</vCBS></gIBSCBSAjuste>"
+            "</trib></valores>"
+            "<imovel><cMun>3106200</cMun><gLocacao><pCopropriedade>100.00</pCopropriedade>"
+            "<vTotOper>5000.00</vTotOper></gLocacao><gUnidImob><inscImobFisc>ABC</inscImobFisc>"
+            "</gUnidImob></imovel>"
+            "<bensMoveis><xBem>Equipamento</xBem></bensMoveis>"
+            "<gPgtoVinc><pgto><nPag>001</nPag></pgto></gPgtoVinc>"
+            "</IBSCBS>"
+        )
+        xml = xml_path.read_text(encoding="utf-8").replace(
+            "<DPS versao=\"1.00\">",
+            f"{nfse_ibscbs}<DPS versao=\"1.00\">",
+            1,
+        ).replace(
+            "</infDPS></DPS>",
+            f"{dps_ibscbs}</infDPS></DPS>",
+            1,
+        )
+        with tempfile.NamedTemporaryFile("w", suffix=".xml", encoding="utf-8", delete=False) as tmp:
+            tmp.write(xml)
+            tmp_path = Path(tmp.name)
+        try:
+            ibs_cbs = parse_ibs_cbs_taxation(tmp_path)
+            total = parse_total(tmp_path)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+        self.assertEqual(ibs_cbs.adjustment_ibs, "1.25")
+        self.assertEqual(ibs_cbs.adjustment_cbs, "2.50")
+        self.assertEqual(ibs_cbs.final_consumer_indicator, "Sim")
+        self.assertEqual(ibs_cbs.sn_gross_revenue, "100.00")
+        self.assertEqual(ibs_cbs.ibs_total, "1.00")
+        self.assertEqual(ibs_cbs.cbs_rate, "0.90")
+        self.assertEqual(ibs_cbs.cbs_total, "9.00")
+        self.assertIn("Belo Horizonte / MG", ibs_cbs.real_estate_summary)
+        self.assertEqual(ibs_cbs.movable_property_count, "1")
+        self.assertEqual(ibs_cbs.linked_payment_count, "1")
+        self.assertEqual(total.ibs_cbs_total, "10.00")
+
     def test_extracts_receipt_fields(self):
         receipt = parse_receipt(Path(__file__).resolve().parents[1] / "xml.xml")
         self.assertEqual(receipt.acknowledgement_date, "")
@@ -388,7 +462,16 @@ class HeaderParsingTest(TestCase):
 
     def test_validates_layout_and_data(self):
         self.assertEqual(validate_layout_constants(), [])
-        self.assertEqual(validate_danfse_data(self.document), [])
+        issues = validate_danfse_data(self.document)
+        self.assertFalse([issue for issue in issues if issue.severity == "error"])
+        self.assertTrue(
+            any(
+                issue.code == "data.required_missing"
+                and "provider.name" in issue.message
+                and "DPS/infDPS/prest/xNome" in issue.message
+                for issue in issues
+            )
+        )
 
     def test_renders_header_pdf_with_weasyprint(self):
         class FakeHTML:

@@ -32,6 +32,8 @@ class HeaderData:
     generator_environment: str
     national_environment: str
     show_municipality: bool = True
+    debit_note_type: str = MISSING_VALUE
+    credit_note_type: str = MISSING_VALUE
 
     @property
     def municipality_line(self) -> str:
@@ -66,6 +68,7 @@ class ProviderData:
     email: str
     simples_nacional: str
     sn_tax_regime: str
+    ibs_cbs_sn_tax_regime: str = MISSING_VALUE
 
 
 @dataclass(frozen=True)
@@ -121,6 +124,7 @@ class ServiceData:
     location: str
     taxation_description: str
     service_description: str
+    simples_nacional_activity: str = MISSING_VALUE
 
 
 @dataclass(frozen=True)
@@ -177,6 +181,17 @@ class IbsCbsTaxationData:
     cbs_rate: str
     cbs_effective_rate: str
     cbs_total: str
+    adjustment_ibs: str = MISSING_VALUE
+    adjustment_cbs: str = MISSING_VALUE
+    final_consumer_indicator: str = MISSING_VALUE
+    sn_gross_revenue: str = MISSING_VALUE
+    sn_ibs_rate: str = MISSING_VALUE
+    sn_ibs_amount: str = MISSING_VALUE
+    sn_cbs_rate: str = MISSING_VALUE
+    sn_cbs_amount: str = MISSING_VALUE
+    real_estate_summary: str = MISSING_VALUE
+    movable_property_count: str = MISSING_VALUE
+    linked_payment_count: str = MISSING_VALUE
 
 
 @dataclass(frozen=True)

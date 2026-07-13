@@ -28,6 +28,20 @@ FIN_NFSE = {
     "2": "NFS-e de débito",
 }
 
+TP_NFSE_DEBITO = {
+    "01": "Transferência de créditos para Cooperativas",
+    "02": "Anulação de Crédito por Saídas Imunes/Isentas",
+    "03": "Débitos de notas fiscais não processadas na apuração",
+    "04": "Multa e juros",
+    "05": "Transferência de crédito na sucessão",
+    "06": "Pagamento Antecipado",
+}
+
+TP_NFSE_CREDITO = {
+    "01": "Multa e juros",
+    "05": "Transferência de crédito na sucessão",
+}
+
 OP_SIMP_NAC = {
     "1": "Não Optante",
     "2": "Optante - Microempreendedor Individual (MEI)",
@@ -39,6 +53,24 @@ REG_AP_TRIB_SN = {
     "1": "Regime de apuração dos tributos federais e municipal pelo SN",
     "2": "Regime de apuração dos tributos federais pelo SN e o ISSQN pela NFS-e conforme respectiva legislação municipal do tributo",
     "3": "Regime de apuração dos tributos federais e municipal pela NFS-e conforme respectivas legislações federal e municipal de cada tributo",
+}
+
+REG_AP_IBS_CBS_SN = {
+    "1": "IBS e CBS apurados pelo SN",
+    "2": "CBS apurada pelo SN e IBS apurado pelo regime regular",
+    "3": "IBS e CBS apurados pelo regime regular",
+}
+
+C_ATV_SN = {
+    "7": "Prestação de serviços, cessão de direitos, de uso ou de espaço com incidência do ISS, tributados exclusivamente pelo Anexo III",
+    "8": "Prestação de serviços contábeis autorizados a pagar o ISS em valor fixo em guia do Município - Anexo III",
+    "9": "Prestação de serviços - Sujeitos ao Fator R - Anexo III ou V",
+    "10": "Prestação de serviços de transporte municipal rodoviário, metroviário, ferroviário e aquaviário de passageiros - Anexo III",
+    "11": "Locação de bens móveis e operações com serviços, bens imateriais e direitos, inclusive com bens imóveis, sem incidência de ISS - Anexo III",
+    "12": "Prestação de serviços da área da construção civil relacionados aos subitens 7.02 e 7.05 - Anexo III",
+    "13": "Prestação de serviços da área da construção civil relacionados aos subitens 7.02 e 7.05 - Anexo IV",
+    "14": "Prestação de serviços - Anexo IV",
+    "90": "Operações não tributadas",
 }
 
 REG_ESP_TRIB = {

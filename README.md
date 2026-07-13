@@ -149,15 +149,40 @@ Se a fonte nao estiver instalada, a CLI avisa. Para checagem mais rigorosa, use 
 - Linha PIS/COFINS da Tributacao Federal impressa somente para competencia ate o fim do ano-calendario de 2026, conforme nota 6
 - Informacoes Complementares montadas na ordem definida pela NT
 - Validador de medidas, tamanhos maximos de campos e regras condicionais implementadas
+- Validador com avisos para campos minimos ausentes no caminho XML normativo
 
 ## Compatibilidade NT 009
 
 - CNPJ alfanumerico e preservado sem formatacao quando nao for composto apenas por 14 digitos.
 - `finNFSe` tambem e lido no caminho `NFSe/infNFSe/DPS/infDPS/finNFSe`.
+- `tpNFSeCredito` e `tpNFSeDebito` sao lidos e descritos quando informados.
 - `opSimpNac = 4` e descrito como `Optante Pendente`.
+- `regApIBSCBSSN`, `cAtvSN`, `vReceitaBrutaSN` e `gTribSN` sao extraidos quando existem no XML.
+- `gIBSCBSAjuste/vIBS` e `gIBSCBSAjuste/vCBS` sao preservados no modelo de dados.
+- `indFinal` e lido como indicador de uso ou consumo pessoal.
+- `imovel`, `bensMoveis` e `gPgtoVinc/pgto` sao identificados em campos de resumo/contagem no modelo de dados.
 - O grupo `vAjusteBC` e considerado nos campos de deducoes/reducoes quando presente.
+- Quando os totalizadores antigos de IBS/CBS nao existem, os valores de `gTribSN` podem compor os totais exibidos.
 
-Essas compatibilidades nao alteram o layout visual do DANFSe definido na NT 008 e nao autorizam fallback automatico entre `emit` e `prest`.
+Essas compatibilidades nao alteram o layout visual do DANFSe definido na NT 008 e nao autorizam fallback automatico entre `emit` e `prest`. Campos da NT 009 que nao possuem posicao propria no DANFSe NT 008 ficam disponiveis no modelo para validacao, auditoria ou uso por aplicacoes consumidoras.
+
+### Campos ausentes e fallback
+
+A NT 008 define caminhos XML especificos para os campos impressos. Por isso, a biblioteca nao copia automaticamente dados de outro grupo quando o caminho normativo esta ausente.
+
+Exemplo: o nome do Prestador / Fornecedor e lido de `NFSe/infNFSe/DPS/infDPS/prest/xNome`. Se o XML possuir `NFSe/infNFSe/emit/xNome`, mas nao possuir `prest/xNome`, o DANFSe exibira `-` e o validador retornara um aviso `data.required_missing`.
+
+Essa decisao evita imprimir informacao fora do caminho previsto no DANFSe. Se um projeto precisar de compatibilidade com XMLs incompletos, esse tratamento deve ser feito antes de chamar a biblioteca ou em um modo explicito ainda nao implementado.
+
+### Saida do validador
+
+`validate_danfse_data` retorna objetos `ValidationIssue` com:
+
+- `code`: codigo estavel da validacao.
+- `message`: descricao do problema e, quando aplicavel, caminho XML esperado.
+- `severity`: `error` ou `warning`.
+
+A CLI bloqueia a geracao somente quando existe `severity == "error"`. Avisos sao impressos como diagnostico e o DANFSe continua sendo gerado.
 
 ## Desenvolvimento
 
