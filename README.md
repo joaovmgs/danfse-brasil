@@ -13,6 +13,22 @@ Biblioteca Python para gerar o DANFSe a partir do XML nacional da NFS-e, seguind
 
 O objetivo do projeto e reproduzir o DANFSe com os caminhos XML, descricoes, medidas, fontes e regras de supressao definidos na NT 008. A biblioteca nao inventa valores: quando uma tag exigida para um campo nao existe no XML, o campo e preenchido com `-`, conforme a nota 12 da tabela 2.4.5.
 
+## Sobre o projeto
+
+`danfse-brasil` e uma biblioteca Python para converter XML nacional da NFS-e em DANFSe PDF/HTML, com foco no padrao brasileiro da Nota Fiscal de Servico Eletronica. Ela foi pensada para ERPs, sistemas fiscais, escritorios contabeis e projetos que precisam gerar o documento auxiliar localmente, sem depender da API antiga de DANFSe.
+
+Descricao sugerida para o About do GitHub:
+
+```text
+Biblioteca Python para gerar DANFSe PDF/HTML a partir do XML nacional da NFS-e, seguindo NT 008/2026 e compatibilidades NT 009.
+```
+
+Topicos sugeridos:
+
+```text
+nfse, nfs-e, danfse, danfse-brasil, nota-fiscal, nota-fiscal-servico, python, pdf, xml, rtc, ibs, cbs, brasil
+```
+
 ## Licenca
 
 Este projeto e publicado com uma licenca de uso propria, incluida em [LICENSE](LICENSE).
@@ -109,8 +125,23 @@ data = parse_danfse("xml.xml")
 issues = validate_danfse_data(data)
 
 for issue in issues:
-    print(f"{issue.code}: {issue.message}")
+    print(f"{issue.severity}: {issue.code}: {issue.message}")
 ```
+
+## Validacao visual
+
+O repositorio inclui um script para gerar um PDF de exemplo e, quando o PyMuPDF estiver disponivel, renderizar a primeira pagina em PNG para revisao visual:
+
+```powershell
+uv run --with pymupdf python scripts/visual_check.py xml.xml
+```
+
+Saida esperada:
+
+- `tmp/pdfs/danfse-visual-check.pdf`
+- `tmp/pdfs/danfse-visual-check-page1.png`
+
+O script tambem valida que o PDF possui uma pagina em tamanho A4 aproximado. Avisos do validador nao bloqueiam a geracao; erros bloqueiam.
 
 ## Fonte
 
@@ -150,6 +181,27 @@ Se a fonte nao estiver instalada, a CLI avisa. Para checagem mais rigorosa, use 
 - Informacoes Complementares montadas na ordem definida pela NT
 - Validador de medidas, tamanhos maximos de campos e regras condicionais implementadas
 - Validador com avisos para campos minimos ausentes no caminho XML normativo
+
+## Checklist de aderencia visual NT 008
+
+A revisao visual do DANFSe deve considerar os seguintes pontos da NT 008/2026:
+
+- Papel A4 em orientacao retrato, uma unica pagina.
+- Borda externa e blocos posicionados conforme medidas em centimetros da tabela 2.4.5.
+- Margem interna preservada entre textos, linhas, sombreamentos e borda externa.
+- Logomarca oficial da NFS-e no cabecalho, sem fundo preto e sem invadir a margem.
+- Titulo `DANFSe v2.0` e `Documento Auxiliar da NFS-e` centralizados.
+- QR Code com a URL publica de consulta pela chave de acesso.
+- Mensagem `NFS-e SEM VALIDADE JURIDICA` apenas quando `tpAmb == 2`.
+- Labels em Arial e conteudo em Microsoft Sans Serif, respeitando os tamanhos minimos.
+- Supressoes/reducoes dos blocos permitidos: Tomador, Destinatario, Intermediario, Tributacao Municipal e Canhoto.
+- Campos sem tag normativa impressos como `-`, sem fallback automatico entre grupos XML.
+
+Limitacoes conhecidas:
+
+- A biblioteca ainda nao possui homologacao em validador oficial externo.
+- A validacao automatica confere constantes, tamanho A4, renderizacao e regras de dados, mas a comparacao fina com o Anexo I continua sendo uma revisao visual humana.
+- A disponibilidade real de Arial e Microsoft Sans Serif depende do sistema operacional e do runtime do WeasyPrint.
 
 ## Compatibilidade NT 009
 
