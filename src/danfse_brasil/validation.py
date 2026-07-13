@@ -12,6 +12,7 @@ from .models import DanfseData, MISSING_VALUE
 class ValidationIssue:
     code: str
     message: str
+    severity: str = "error"
 
 
 EXPECTED_BOXES = {
@@ -253,6 +254,25 @@ FIELD_MAX_LENGTHS = {
     "receipt.nfse_number_access_key": 66,
 }
 
+NORMATIVE_REQUIRED_FIELDS = {
+    "header.access_key": "NFSe/infNFSe/@Id",
+    "header.nfse_number": "NFSe/infNFSe/nNFSe",
+    "header.competence_date": "NFSe/infNFSe/DPS/infDPS/dCompet",
+    "header.nfse_issued_at": "NFSe/infNFSe/dhProc",
+    "header.dps_number": "NFSe/infNFSe/DPS/infDPS/nDPS",
+    "header.dps_series": "NFSe/infNFSe/DPS/infDPS/serie",
+    "header.dps_issued_at": "NFSe/infNFSe/DPS/infDPS/dhEmi",
+    "header.issuer": "NFSe/infNFSe/DPS/infDPS/tpEmit",
+    "header.status": "NFSe/infNFSe/cStat",
+    "provider.tax_id": "NFSe/infNFSe/DPS/infDPS/prest/CNPJ|CPF|NIF",
+    "provider.name": "NFSe/infNFSe/DPS/infDPS/prest/xNome",
+    "service.taxation_code": "NFSe/infNFSe/DPS/infDPS/serv/cServ/cTribNac|cTribMun",
+    "service.location": "NFSe/infNFSe/DPS/infDPS/serv/locPrest/cLocPrestacao",
+    "service.service_description": "NFSe/infNFSe/DPS/infDPS/serv/cServ/xDescServ",
+    "total.service_amount": "NFSe/infNFSe/DPS/infDPS/valores/vServPrest/vServ",
+    "total.nfse_net_amount": "NFSe/infNFSe/valores/vLiq",
+}
+
 
 def validate_layout_constants() -> list[ValidationIssue]:
     issues: list[ValidationIssue] = []
@@ -279,6 +299,7 @@ def validate_danfse_data(data: DanfseData) -> list[ValidationIssue]:
                     f"{path}: tamanho {len(value)} excede limite normativo {max_length}.",
                 )
             )
+    issues.extend(_validate_required_fields(data))
     issues.extend(_validate_rule_flags(data))
     return issues
 
@@ -328,6 +349,54 @@ def _validate_rule_flags(data: DanfseData) -> list[ValidationIssue]:
                 ValidationIssue(
                     "data.federal.legacy_row_invalid",
                     "Linha de PIS/COFINS só pode ser impressa até o fim de 2026.",
+                )
+            )
+
+    if data.header.purpose == "NFS-e de crédito" and data.header.credit_note_type == MISSING_VALUE:
+        issues.append(
+            ValidationIssue(
+                "data.nt009.credit_type_missing",
+                "NFS-e de crédito sem tpNFSeCredito em NFSe/infNFSe/DPS/infDPS/tpNFSeCredito.",
+                "warning",
+            )
+        )
+
+    if data.header.purpose == "NFS-e de débito" and data.header.debit_note_type == MISSING_VALUE:
+        issues.append(
+            ValidationIssue(
+                "data.nt009.debit_type_missing",
+                "NFS-e de débito sem tpNFSeDebito em NFSe/infNFSe/DPS/infDPS/tpNFSeDebito.",
+                "warning",
+            )
+        )
+
+    sn_values = (
+        data.ibs_cbs_taxation.sn_ibs_rate,
+        data.ibs_cbs_taxation.sn_ibs_amount,
+        data.ibs_cbs_taxation.sn_cbs_rate,
+        data.ibs_cbs_taxation.sn_cbs_amount,
+    )
+    if any(value != MISSING_VALUE for value in sn_values) and any(value == MISSING_VALUE for value in sn_values):
+        issues.append(
+            ValidationIssue(
+                "data.nt009.gtribsn_partial",
+                "Grupo gTribSN esta parcialmente preenchido; confira pIBSSN, vIBSSN, pCBSSN e vCBSSN.",
+                "warning",
+            )
+        )
+    return issues
+
+
+def _validate_required_fields(data: DanfseData) -> list[ValidationIssue]:
+    issues: list[ValidationIssue] = []
+    for path, xml_path in NORMATIVE_REQUIRED_FIELDS.items():
+        value = _get_path(data, path)
+        if value == MISSING_VALUE:
+            issues.append(
+                ValidationIssue(
+                    "data.required_missing",
+                    f"{path}: campo minimo ausente no caminho normativo {xml_path}; sera impresso como '-'.",
+                    "warning",
                 )
             )
     return issues

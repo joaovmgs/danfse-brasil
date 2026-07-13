@@ -7,14 +7,18 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 
 from .codes import (
+    C_ATV_SN,
     CSTAT,
     FIN_NFSE,
     OP_SIMP_NAC,
+    REG_AP_IBS_CBS_SN,
     REG_AP_TRIB_SN,
     REG_ESP_TRIB,
     TP_BM_ISSQN,
     TP_EMIT,
     TP_IMUNIDADE_ISSQN,
+    TP_NFSE_CREDITO,
+    TP_NFSE_DEBITO,
     TP_RET_ISSQN,
     TP_RET_PIS_COFINS,
     TP_SUSP_ISSQN,
@@ -158,6 +162,8 @@ def _parse_header(inf_nfse: ET.Element, inf_dps: ET.Element) -> HeaderData:
         generator_environment=missing_if_blank(_text(inf_nfse, "ambGer")),
         national_environment=missing_if_blank(_text(inf_dps, "tpAmb")),
         show_municipality=not national_tax_code.startswith("99"),
+        debit_note_type=ellipsize(describe(TP_NFSE_DEBITO, _text(inf_dps, "tpNFSeDebito")), 80),
+        credit_note_type=ellipsize(describe(TP_NFSE_CREDITO, _text(inf_dps, "tpNFSeCredito")), 80),
     )
 
 
@@ -190,6 +196,10 @@ def _parse_provider(inf_dps: ET.Element) -> ProviderData:
         email=missing_if_blank(_text(prest, "email")),
         simples_nacional=ellipsize(describe(OP_SIMP_NAC, _text(reg_trib, "opSimpNac")), 40),
         sn_tax_regime=ellipsize(describe(REG_AP_TRIB_SN, _text(reg_trib, "regApTribSN")), 80),
+        ibs_cbs_sn_tax_regime=ellipsize(
+            describe(REG_AP_IBS_CBS_SN, _text(reg_trib, "regApIBSCBSSN")),
+            80,
+        ),
     )
 
 
@@ -334,6 +344,7 @@ def _parse_service(inf_nfse: ET.Element, inf_dps: ET.Element) -> ServiceData:
         location=ellipsize(location, 42),
         taxation_description=ellipsize(taxation_description, 170),
         service_description=ellipsize(missing_if_blank(_text(c_serv, "xDescServ")), 1300),
+        simples_nacional_activity=ellipsize(describe(C_ATV_SN, _text(c_serv, "cAtvSN")), 80),
     )
 
 
@@ -447,6 +458,10 @@ def _parse_ibs_cbs_taxation(inf_nfse: ET.Element, inf_dps: ET.Element) -> IbsCbs
     g_ibs_mun = _child(g_ibs, "gIBSMunTot")
     g_ibs_uf = _child(g_ibs, "gIBSUFTot")
     g_cbs = _child(tot_cibs, "gCBS")
+    g_trib_sn = _child(tot_cibs, "gTribSN")
+    g_adjustment = _path(ibscbs_dps, "valores", "trib", "gIBSCBSAjuste")
+    imovel = _child(ibscbs_dps, "imovel")
+    linked_payments = _path(ibscbs_dps, "gPgtoVinc")
 
     return IbsCbsTaxationData(
         cst_classification=_join_values(
@@ -468,10 +483,21 @@ def _parse_ibs_cbs_taxation(inf_nfse: ET.Element, inf_dps: ET.Element) -> IbsCbs
         ibs_municipal_amount=_first_present_value(_text(g_ibs_mun, "vIBSMun")),
         ibs_state_effective_rate=_first_present_value(_text(uf_values, "pAliqEfetUF")),
         ibs_state_amount=_first_present_value(_text(g_ibs_uf, "vIBSUF")),
-        ibs_total=_first_present_value(_text(g_ibs, "vIBSTot")),
-        cbs_rate=_first_present_value(_text(fed_values, "pCBS")),
+        ibs_total=_first_present_value(_text(g_ibs, "vIBSTot"), _text(g_trib_sn, "vIBSSN")),
+        cbs_rate=_first_present_value(_text(fed_values, "pCBS"), _text(g_trib_sn, "pCBSSN")),
         cbs_effective_rate=_first_present_value(_text(fed_values, "pAliqEfetCBS")),
-        cbs_total=_first_present_value(_text(g_cbs, "vCBS")),
+        cbs_total=_first_present_value(_text(g_cbs, "vCBS"), _text(g_trib_sn, "vCBSSN")),
+        adjustment_ibs=_first_present_value(_text(g_adjustment, "vIBS")),
+        adjustment_cbs=_first_present_value(_text(g_adjustment, "vCBS")),
+        final_consumer_indicator=describe({"0": "Não", "1": "Sim"}, _text(ibscbs_dps, "indFinal")),
+        sn_gross_revenue=_first_present_value(_text(ibscbs_values, "vReceitaBrutaSN")),
+        sn_ibs_rate=_first_present_value(_text(g_trib_sn, "pIBSSN")),
+        sn_ibs_amount=_first_present_value(_text(g_trib_sn, "vIBSSN")),
+        sn_cbs_rate=_first_present_value(_text(g_trib_sn, "pCBSSN")),
+        sn_cbs_amount=_first_present_value(_text(g_trib_sn, "vCBSSN")),
+        real_estate_summary=_real_estate_summary(imovel),
+        movable_property_count=_count_or_missing(_children(ibscbs_dps, "bensMoveis")),
+        linked_payment_count=_count_or_missing(_children(linked_payments, "pgto")),
     )
 
 
@@ -483,6 +509,7 @@ def _parse_total(inf_nfse: ET.Element, inf_dps: ET.Element) -> TotalData:
     tot_cibs = _child(ibscbs_nfse, "totCIBS")
     g_ibs = _path(tot_cibs, "gIBS")
     g_cbs = _path(tot_cibs, "gCBS")
+    g_trib_sn = _path(tot_cibs, "gTribSN")
 
     return TotalData(
         service_amount=_first_present_value(_path_text(valores_dps, "vServPrest", "vServ")),
@@ -490,7 +517,12 @@ def _parse_total(inf_nfse: ET.Element, inf_dps: ET.Element) -> TotalData:
         conditional_discount=_first_present_value(_text(desconto, "vDescCond")),
         total_retentions=_first_present_value(_text(valores_nfse, "vTotalRet")),
         nfse_net_amount=_first_present_value(_text(valores_nfse, "vLiq")),
-        ibs_cbs_total=_sum_or_missing(_text(g_ibs, "vIBSTot"), _text(g_cbs, "vCBS")),
+        ibs_cbs_total=_sum_or_missing(
+            _text(g_ibs, "vIBSTot"),
+            _text(g_cbs, "vCBS"),
+            _text(g_trib_sn, "vIBSSN"),
+            _text(g_trib_sn, "vCBSSN"),
+        ),
         nfse_net_amount_with_ibs_cbs=_first_present_value(_text(tot_cibs, "vTotNF")),
     )
 
@@ -685,6 +717,29 @@ def _ibs_cbs_exclusions_reductions(inf_nfse: ET.Element, inf_dps: ET.Element) ->
         _text(piscofins, "vPis"),
         _text(piscofins, "vCofins"),
     )
+
+
+def _real_estate_summary(imovel: ET.Element | None) -> str:
+    if imovel is None:
+        return MISSING_VALUE
+
+    c_mun = missing_if_blank(_text(imovel, "cMun"))
+    locacao = _child(imovel, "gLocacao")
+    units = _children(imovel, "gUnidImob")
+    parts: list[str] = []
+    if c_mun != MISSING_VALUE:
+        parts.append(f"Município: {describe_municipality_state(c_mun)}")
+    _append_prefixed(parts, "Copropriedade:", _text(locacao, "pCopropriedade"))
+    _append_prefixed(parts, "Valor total operação:", _text(locacao, "vTotOper"))
+    if units:
+        parts.append(f"Unidades: {len(units)}")
+    return ellipsize(" | ".join(parts) if parts else MISSING_VALUE, 200)
+
+
+def _count_or_missing(values: list[ET.Element]) -> str:
+    if not values:
+        return MISSING_VALUE
+    return str(len(values))
 
 
 def _append_prefixed(parts: list[str], label: str, value: str | None) -> None:
