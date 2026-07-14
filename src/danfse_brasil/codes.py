@@ -17,6 +17,7 @@ TP_EMIT = {
 
 CSTAT = {
     "100": "NFS-e Gerada",
+    "101": "NFS-e de Substituição Gerada",
     "102": "NFS-e de Decisão Judicial ou Administrativa",
     "103": "NFS-e Avulsa",
     "107": "NFS-e MEI",

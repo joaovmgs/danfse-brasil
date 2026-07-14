@@ -49,6 +49,19 @@ class HeaderParsingTest(TestCase):
         self.assertEqual(self.data.status, "NFS-e Gerada")
         self.assertEqual(self.data.purpose, "-")
 
+    def test_maps_substitution_status(self):
+        xml_path = Path(__file__).resolve().parents[1] / "xml.xml"
+        xml = xml_path.read_text(encoding="utf-8").replace("<cStat>100</cStat>", "<cStat>101</cStat>", 1)
+        with tempfile.NamedTemporaryFile("w", suffix=".xml", encoding="utf-8", delete=False) as tmp:
+            tmp.write(xml)
+            tmp_path = Path(tmp.name)
+        try:
+            data = parse_header(tmp_path)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+        self.assertEqual(data.status, "NFS-e de Substituição Gerada")
+
     def test_extracts_nt009_fin_nfse_from_inf_dps(self):
         xml_path = Path(__file__).resolve().parents[1] / "xml.xml"
         xml = xml_path.read_text(encoding="utf-8").replace(
