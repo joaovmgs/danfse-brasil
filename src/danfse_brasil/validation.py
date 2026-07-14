@@ -5,7 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from . import layout
-from .models import DanfseData, MISSING_VALUE
+from .constants import LEGACY_PISCOFINS_LAST_YEAR, MISSING_VALUE
+from .models import DanfseData
 
 
 @dataclass(frozen=True)
@@ -343,12 +344,12 @@ def _validate_rule_flags(data: DanfseData) -> list[ValidationIssue]:
         try:
             competence_year = int(data.header.competence_date[-4:])
         except ValueError:
-            competence_year = 2026
-        if competence_year > 2026:
+            competence_year = LEGACY_PISCOFINS_LAST_YEAR
+        if competence_year > LEGACY_PISCOFINS_LAST_YEAR:
             issues.append(
                 ValidationIssue(
                     "data.federal.legacy_row_invalid",
-                    "Linha de PIS/COFINS só pode ser impressa até o fim de 2026.",
+                    f"Linha de PIS/COFINS so pode ser impressa ate o fim de {LEGACY_PISCOFINS_LAST_YEAR}.",
                 )
             )
 

@@ -1,6 +1,19 @@
-# danfse-brasil
+# danfse-brasil: DANFSe PDF/HTML para NFS-e Nacional em Python
 
-Biblioteca Python para gerar o DANFSe a partir do XML nacional da NFS-e, seguindo a Nota Tecnica No 008 SE/CGNFS-e de 05/05/2026 e mantendo compatibilidade com evolucoes pontuais da NT 009.
+`danfse-brasil` e uma biblioteca Python para gerar **DANFSe em PDF ou HTML** a partir do **XML nacional da NFS-e**. O projeto implementa o Documento Auxiliar da Nota Fiscal de Servico Eletronica seguindo o layout da **Nota Tecnica 008/2026 SE/CGNFS-e** e inclui compatibilidades pontuais da **NT 009/2026** para campos RTC, IBS/CBS e CNPJ alfanumerico.
+
+Use esta biblioteca quando precisar converter XML de NFS-e Nacional em PDF, integrar DANFSe em ERP, sistema fiscal, automacao contabil, portal de notas, rotina de download de XML/PDF ou backend Python.
+
+## Principais termos atendidos
+
+- DANFSe Python
+- gerar DANFSe PDF
+- converter XML NFS-e para PDF
+- NFS-e Nacional XML
+- Documento Auxiliar da NFS-e
+- biblioteca Python NFS-e
+- PDF de nota fiscal de servico
+- RTC, IBS e CBS no XML da NFS-e
 
 > Alerta
 > Esta implementacao foi escrita seguindo a documentacao oficial da NT 008:
@@ -13,20 +26,37 @@ Biblioteca Python para gerar o DANFSe a partir do XML nacional da NFS-e, seguind
 
 O objetivo do projeto e reproduzir o DANFSe com os caminhos XML, descricoes, medidas, fontes e regras de supressao definidos na NT 008. A biblioteca nao inventa valores: quando uma tag exigida para um campo nao existe no XML, o campo e preenchido com `-`, conforme a nota 12 da tabela 2.4.5.
 
+## Recursos
+
+- Gera DANFSe em PDF via WeasyPrint.
+- Gera HTML para depuracao, preview ou integracao propria.
+- Le XML nacional da NFS-e e monta os blocos do DANFSe.
+- Gera QR Code com URL publica de consulta pela chave de acesso.
+- Respeita regras de supressao/reducao de blocos previstas na NT 008.
+- Mantem CNPJ alfanumerico sem formatacao indevida.
+- Expoe validador com `error` e `warning` para campos ausentes, medidas e regras condicionais.
+- Inclui CLI `danfse-brasil` para uso direto no terminal.
+
 ## Sobre o projeto
 
-`danfse-brasil` e uma biblioteca Python para converter XML nacional da NFS-e em DANFSe PDF/HTML, com foco no padrao brasileiro da Nota Fiscal de Servico Eletronica. Ela foi pensada para ERPs, sistemas fiscais, escritorios contabeis e projetos que precisam gerar o documento auxiliar localmente, sem depender da API antiga de DANFSe.
+`danfse-brasil` e uma biblioteca Python para converter XML nacional da NFS-e em DANFSe PDF/HTML, com foco no padrao brasileiro da Nota Fiscal de Servico Eletronica. Ela foi pensada para ERPs, sistemas fiscais, escritorios contabeis e projetos que precisam gerar o documento auxiliar localmente.
 
-Descricao sugerida para o About do GitHub:
+### About sugerido para o GitHub
 
 ```text
-Biblioteca Python para gerar DANFSe PDF/HTML a partir do XML nacional da NFS-e, seguindo NT 008/2026 e compatibilidades NT 009.
+Biblioteca Python para gerar DANFSe PDF/HTML a partir do XML nacional da NFS-e, seguindo a NT 008/2026 e compatibilidades NT 009/2026.
 ```
 
-Topicos sugeridos:
+### Website sugerido
 
 ```text
-nfse, nfs-e, danfse, danfse-brasil, nota-fiscal, nota-fiscal-servico, python, pdf, xml, rtc, ibs, cbs, brasil
+https://github.com/joaovmgs/danfse-brasil#readme
+```
+
+### Topicos sugeridos
+
+```text
+danfse, nfse, nfs-e, nfse-nacional, nota-fiscal, nota-fiscal-servico, python, pdf, xml, weasyprint, rtc, ibs, cbs, brasil
 ```
 
 ## Licenca
@@ -77,6 +107,12 @@ Se o MSYS2 estiver em outro caminho, defina `WEASYPRINT_DLL_DIRECTORIES` apontan
 ```powershell
 cd "C:\caminho\para\danfse-brasil"
 uv sync
+```
+
+Para instalar diretamente em outro projeto enquanto o pacote nao estiver publicado no PyPI:
+
+```powershell
+pip install "danfse-brasil @ git+https://github.com/joaovmgs/danfse-brasil.git"
 ```
 
 ## Uso rapido

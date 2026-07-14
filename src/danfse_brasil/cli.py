@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from .compliance import font_warnings
+from .constants import DEFAULT_CLI_OUTPUT
 from .html import render_danfse_html
 from .pdf import render_danfse_pdf
 from .validation import validate_danfse_data
@@ -13,9 +14,9 @@ from .xml import parse_danfse
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Gera o DANFSe conforme as notas tecnicas da NFS-e nacional.")
+    parser = argparse.ArgumentParser(description="Gera DANFSe PDF/HTML a partir do XML nacional da NFS-e.")
     parser.add_argument("xml", type=Path, help="Arquivo XML da NFS-e.")
-    parser.add_argument("-o", "--output", type=Path, default=Path("danfse-header.pdf"))
+    parser.add_argument("-o", "--output", type=Path, default=DEFAULT_CLI_OUTPUT)
     parser.add_argument(
         "--strict-fonts",
         action="store_true",
@@ -45,6 +46,7 @@ def main() -> None:
     if args.output.suffix.lower() == ".pdf":
         render_danfse_pdf(data, args.output)
     else:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(render_danfse_html(data), encoding="utf-8")
     print(args.output)
 

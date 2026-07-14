@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import subprocess
 
-
-REQUIRED_FONTS = ("Arial", "Microsoft Sans Serif")
+from .constants import REQUIRED_FONTS
 
 
 def font_warnings() -> list[str]:
