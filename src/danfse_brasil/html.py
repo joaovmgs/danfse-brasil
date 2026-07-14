@@ -7,6 +7,7 @@ from html import escape
 from io import BytesIO
 
 from . import layout
+from .constants import DANFSE_VERSION_LABEL, DOCUMENT_TITLE, MISSING_VALUE
 from .models import (
     ComplementaryInfoData,
     CustomerData,
@@ -109,8 +110,8 @@ def render_danfse_html(data: DanfseData) -> str:
     <section class="box shaded section-line" style="{layout.HEADER.css()}"></section>
     <img class="logo" src="{NFSE_LOGO_URL}" alt="NFS-e">
     <section class="title">
-      <div>DANFSe v2.0</div>
-      <div>Documento Auxiliar da NFS-e</div>
+      <div>{escape(DANFSE_VERSION_LABEL)}</div>
+      <div>{escape(DOCUMENT_TITLE)}</div>
       {legal_warning}
     </section>
     <section class="box" style="{layout.MUNICIPALITY_ENV.css()}"></section>
@@ -155,17 +156,17 @@ def render_danfse_html(data: DanfseData) -> str:
 
 
 def render_header_html(data: HeaderData) -> str:
-    empty_provider = ProviderData("-", "-", "-", "-", "-", "-", "-", "-", "-", "-")
-    empty_customer = CustomerData("-", "-", "-", "-", "-", "-", "-", "-")
-    empty_destination = DestinationData("-", "-", "-", "-", "-", "-", "-")
-    empty_intermediary = IntermediaryData("-", "-", "-", "-", "-", "-", "-", "-")
-    empty_service = ServiceData("-", "-", "-", "-", "-")
-    empty_municipal = MunicipalTaxationData("-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-")
-    empty_federal = FederalTaxationData("-", "-", "-", "-", "-", "-")
-    empty_ibs_cbs = IbsCbsTaxationData("-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-")
-    empty_total = TotalData("-", "-", "-", "-", "-", "-", "-")
-    empty_complementary = ComplementaryInfoData("-")
-    empty_receipt = ReceiptData("-", "-", "-")
+    empty_provider = ProviderData(*([MISSING_VALUE] * 10))
+    empty_customer = CustomerData(*([MISSING_VALUE] * 8))
+    empty_destination = DestinationData(*([MISSING_VALUE] * 7))
+    empty_intermediary = IntermediaryData(*([MISSING_VALUE] * 8))
+    empty_service = ServiceData(*([MISSING_VALUE] * 5))
+    empty_municipal = MunicipalTaxationData(*([MISSING_VALUE] * 14))
+    empty_federal = FederalTaxationData(*([MISSING_VALUE] * 6))
+    empty_ibs_cbs = IbsCbsTaxationData(*([MISSING_VALUE] * 14))
+    empty_total = TotalData(*([MISSING_VALUE] * 7))
+    empty_complementary = ComplementaryInfoData(MISSING_VALUE)
+    empty_receipt = ReceiptData(*([MISSING_VALUE] * 3))
     return render_danfse_html(
         DanfseData(
             header=data,

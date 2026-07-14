@@ -5,19 +5,49 @@ build-backend = "hatchling.build"
 [project]
 name = "danfse-brasil"
 version = "0.1.0"
-description = "Geracao do DANFSe conforme as notas tecnicas da NFS-e nacional."
+description = "Biblioteca Python para gerar DANFSe PDF/HTML a partir do XML nacional da NFS-e."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
-authors = [{ name = "Projeto DANFSe" }]
+authors = [{ name = "danfse-brasil contributors" }]
+keywords = [
+  "danfse",
+  "nfse",
+  "nfs-e",
+  "nota fiscal de servico",
+  "xml",
+  "pdf",
+  "python",
+  "brasil",
+  "rtc",
+  "ibs",
+  "cbs",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Natural Language :: Portuguese (Brazilian)",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Office/Business :: Financial",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = [
   "qrcode[pil]>=7.4",
   "weasyprint>=61.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/joaovmgs/danfse-brasil"
+Repository = "https://github.com/joaovmgs/danfse-brasil"
+Issues = "https://github.com/joaovmgs/danfse-brasil/issues"
+Documentation = "https://github.com/joaovmgs/danfse-brasil#readme"
+
 [project.scripts]
 danfse-brasil = "danfse_brasil.cli:main"
-danfse-nt008 = "danfse_brasil.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/danfse_brasil"]

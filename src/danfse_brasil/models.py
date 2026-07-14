@@ -4,13 +4,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .constants import MISSING_VALUE, NFSE_LOGO_URL, PUBLIC_CONSULTATION_URL
 
-MISSING_VALUE = "-"
-CONSULTA_PUBLICA_URL = "https://www.nfse.gov.br/ConsultaPublica/?tpc=1&chave="
-NFSE_LOGO_URL = (
-    "https://www.gov.br/nfse/pt-br/biblioteca/documentacao-tecnica/logos-da-nfs-e/"
-    "Logo%20-%20NFS-e%20-%20Horizontal.png/@@images/image"
-)
+CONSULTA_PUBLICA_URL = PUBLIC_CONSULTATION_URL
 
 
 @dataclass(frozen=True)
@@ -47,7 +43,7 @@ class HeaderData:
 
     @property
     def consultation_url(self) -> str:
-        return f"{CONSULTA_PUBLICA_URL}{self.access_key}"
+        return f"{PUBLIC_CONSULTATION_URL}{self.access_key}"
 
     @property
     def is_restricted_production(self) -> bool:

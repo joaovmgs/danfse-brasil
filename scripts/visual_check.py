@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from danfse_brasil import parse_danfse, render_danfse_pdf, validate_danfse_data
+from danfse_brasil.constants import DEFAULT_VISUAL_CHECK_OUTPUT_DIR, DEFAULT_VISUAL_CHECK_XML
 
 
 A4_WIDTH_PT = 595.28
@@ -15,8 +16,8 @@ PAGE_TOLERANCE_PT = 2.0
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Gera PDF e PNG de inspecao visual do DANFSe.")
-    parser.add_argument("xml", type=Path, nargs="?", default=Path("xml.xml"), help="XML da NFS-e.")
-    parser.add_argument("--output-dir", type=Path, default=Path("tmp/pdfs"), help="Diretorio dos artefatos.")
+    parser.add_argument("xml", type=Path, nargs="?", default=DEFAULT_VISUAL_CHECK_XML, help="XML da NFS-e.")
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_VISUAL_CHECK_OUTPUT_DIR, help="Diretorio dos artefatos.")
     args = parser.parse_args()
 
     args.output_dir.mkdir(parents=True, exist_ok=True)

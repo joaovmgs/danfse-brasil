@@ -25,6 +25,7 @@ from .codes import (
     TRIB_ISSQN,
     describe,
 )
+from .constants import LEGACY_PISCOFINS_LAST_YEAR
 from .exceptions import InvalidNFSeXmlError
 from .formatting import (
     ellipsize,
@@ -441,7 +442,8 @@ def _parse_federal_taxation(inf_dps: ET.Element) -> FederalTaxationData:
             describe(TP_RET_PIS_COFINS, _text(piscofins, "tpRetPisCofins")),
             35,
         ),
-        show_legacy_piscofins_row=competence == MISSING_VALUE or competence[:4] <= "2026",
+        show_legacy_piscofins_row=competence == MISSING_VALUE
+        or competence[:4] <= str(LEGACY_PISCOFINS_LAST_YEAR),
     )
 
 
