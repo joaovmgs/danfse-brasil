@@ -2,29 +2,33 @@
 
 `danfse-brasil` e uma biblioteca Python para gerar **DANFSe em PDF ou HTML** a partir do **XML nacional da NFS-e**. O projeto implementa o Documento Auxiliar da Nota Fiscal de Servico Eletronica seguindo o layout da **Nota Tecnica 008/2026 SE/CGNFS-e** e inclui compatibilidades pontuais da **NT 009/2026** para campos RTC, IBS/CBS e CNPJ alfanumerico.
 
-Use esta biblioteca quando precisar converter XML de NFS-e Nacional em PDF, integrar DANFSe em ERP, sistema fiscal, automacao contabil, portal de notas, rotina de download de XML/PDF ou backend Python.
+A biblioteca foi pensada para ERPs, sistemas fiscais, rotinas contabeis, portais de notas e backends Python que precisam converter XML da NFS-e Nacional em um PDF de DANFSe gerado localmente. O foco do projeto e entregar um renderizador previsivel, testavel e alinhado aos caminhos XML definidos pela documentacao tecnica.
 
-## Principais termos atendidos
+## Quando usar
 
-- DANFSe Python
-- gerar DANFSe PDF
-- converter XML NFS-e para PDF
-- NFS-e Nacional XML
-- Documento Auxiliar da NFS-e
-- biblioteca Python NFS-e
-- PDF de nota fiscal de servico
-- RTC, IBS e CBS no XML da NFS-e
+Use esta biblioteca quando a sua aplicacao ja possui o XML da NFS-e Nacional e precisa gerar o documento auxiliar em PDF ou HTML. Alguns exemplos de uso:
 
-> Alerta
-> Esta implementacao foi escrita seguindo a documentacao oficial da NT 008:
-> https://www.gov.br/nfse/pt-br/biblioteca/documentacao-tecnica/rtc/nt-008-se-cgnfse-danfse-20260505.pdf
->
-> Ajustes de compatibilidade com a NT 009:
-> https://www.gov.br/nfse/pt-br/biblioteca/documentacao-tecnica/rtc/nt-009-se-cgnfse-v1-0-1.pdf
->
-> O PDF e os campos foram validados por implementacao local e testes da biblioteca, mas esta versao ainda nao foi homologada em um validador oficial externo.
+- gerar DANFSe em um ERP ou sistema fiscal;
+- anexar PDF de NFS-e em um portal de notas;
+- criar rotinas de arquivo XML/PDF para escritorios contabeis;
+- validar campos esperados antes de imprimir o documento auxiliar;
+- depurar o layout em HTML antes de gerar o PDF final.
 
-O objetivo do projeto e reproduzir o DANFSe com os caminhos XML, descricoes, medidas, fontes e regras de supressao definidos na NT 008. A biblioteca nao inventa valores: quando uma tag exigida para um campo nao existe no XML, o campo e preenchido com `-`, conforme a nota 12 da tabela 2.4.5.
+O `danfse-brasil` separa leitura do XML, modelo de dados, validacao e renderizacao. Essa estrutura permite usar a biblioteca tanto pela CLI quanto diretamente no codigo Python, sem acoplar o DANFSe a uma aplicacao especifica.
+
+O pacote nao substitui a validacao fiscal feita pelo emissor, prefeitura, Ambiente de Dados Nacional ou processos internos de cada empresa. Ele gera o documento auxiliar a partir dos dados existentes no XML recebido.
+
+## Status normativo
+
+A implementacao segue a documentacao oficial da NT 008:
+
+https://www.gov.br/nfse/pt-br/biblioteca/documentacao-tecnica/rtc/nt-008-se-cgnfse-danfse-20260505.pdf
+
+Tambem existem compatibilidades pontuais com campos introduzidos ou ajustados pela NT 009:
+
+https://www.gov.br/nfse/pt-br/biblioteca/documentacao-tecnica/rtc/nt-009-se-cgnfse-v1-0-1.pdf
+
+O PDF e os campos foram validados por implementacao local e testes automatizados da biblioteca, mas esta versao ainda nao foi homologada por um validador oficial externo.
 
 ## Recursos
 
@@ -37,35 +41,15 @@ O objetivo do projeto e reproduzir o DANFSe com os caminhos XML, descricoes, med
 - Expoe validador com `error` e `warning` para campos ausentes, medidas e regras condicionais.
 - Inclui CLI `danfse-brasil` para uso direto no terminal.
 
-## Sobre o projeto
+## Regra de preenchimento
 
-`danfse-brasil` e uma biblioteca Python para converter XML nacional da NFS-e em DANFSe PDF/HTML, com foco no padrao brasileiro da Nota Fiscal de Servico Eletronica. Ela foi pensada para ERPs, sistemas fiscais, escritorios contabeis e projetos que precisam gerar o documento auxiliar localmente.
+O objetivo do projeto e reproduzir o DANFSe com os caminhos XML, descricoes, medidas, fontes e regras de supressao definidos na NT 008. A biblioteca nao inventa valores: quando uma tag exigida para um campo nao existe no XML, o campo e preenchido com `-`, conforme a nota 12 da tabela 2.4.5.
 
-### About sugerido para o GitHub
+Isso significa que a biblioteca nao copia automaticamente dados entre grupos diferentes do XML. Exemplo: o nome do Prestador / Fornecedor e lido de `NFSe/infNFSe/DPS/infDPS/prest/xNome`. Se o XML possuir `NFSe/infNFSe/emit/xNome`, mas nao possuir `prest/xNome`, o DANFSe exibira `-` e o validador retornara um aviso.
 
-```text
-Biblioteca Python para gerar DANFSe PDF/HTML a partir do XML nacional da NFS-e, seguindo a NT 008/2026 e compatibilidades NT 009/2026.
-```
+## Instalacao
 
-### Website sugerido
-
-```text
-https://github.com/joaovmgs/danfse-brasil#readme
-```
-
-### Topicos sugeridos
-
-```text
-danfse, nfse, nfs-e, nfse-nacional, nota-fiscal, nota-fiscal-servico, python, pdf, xml, weasyprint, rtc, ibs, cbs, brasil
-```
-
-## Licenca
-
-Este projeto e publicado com uma licenca de uso propria, incluida em [LICENSE](LICENSE).
-
-Uso comercial exige mencao visivel de que o produto, servico ou distribuicao utiliza `danfse-brasil`.
-
-## Requisitos
+Requisitos principais:
 
 - Python 3.10+
 - `uv`
@@ -74,21 +58,17 @@ Uso comercial exige mencao visivel de que o produto, servico ou distribuicao uti
 - No Windows, runtime nativo do WeasyPrint via MSYS2
 - Fontes Arial e Microsoft Sans Serif instaladas no sistema
 
-## Instalacao
-
-### 1. Instale o Python
+### Ambiente local
 
 Use Python 3.10 ou superior.
 
-### 2. Instale o `uv`
+Instale o `uv`:
 
 ```powershell
 pip install uv
 ```
 
-### 3. Instale o runtime do WeasyPrint no Windows
-
-Instale o MSYS2 e depois rode:
+No Windows, instale o MSYS2 e o runtime do WeasyPrint:
 
 ```powershell
 pacman -S --noconfirm mingw-w64-x86_64-pango
@@ -102,7 +82,7 @@ C:\msys64\mingw64\bin
 
 Se o MSYS2 estiver em outro caminho, defina `WEASYPRINT_DLL_DIRECTORIES` apontando para o `mingw64\\bin`.
 
-### 4. Instale as dependencias da biblioteca
+Instale as dependencias da biblioteca:
 
 ```powershell
 cd "C:\caminho\para\danfse-brasil"
@@ -179,7 +159,7 @@ Saida esperada:
 
 O script tambem valida que o PDF possui uma pagina em tamanho A4 aproximado. Avisos do validador nao bloqueiam a geracao; erros bloqueiam.
 
-## Fonte
+## Fontes exigidas
 
 A NT 008 exige:
 
@@ -218,7 +198,7 @@ Se a fonte nao estiver instalada, a CLI avisa. Para checagem mais rigorosa, use 
 - Validador de medidas, tamanhos maximos de campos e regras condicionais implementadas
 - Validador com avisos para campos minimos ausentes no caminho XML normativo
 
-## Checklist de aderencia visual NT 008
+## Checklist visual NT 008
 
 A revisao visual do DANFSe deve considerar os seguintes pontos da NT 008/2026:
 
@@ -239,7 +219,7 @@ Limitacoes conhecidas:
 - A validacao automatica confere constantes, tamanho A4, renderizacao e regras de dados, mas a comparacao fina com o Anexo I continua sendo uma revisao visual humana.
 - A disponibilidade real de Arial e Microsoft Sans Serif depende do sistema operacional e do runtime do WeasyPrint.
 
-## Compatibilidade NT 009
+## Compatibilidade com NT 009
 
 - CNPJ alfanumerico e preservado sem formatacao quando nao for composto apenas por 14 digitos.
 - `finNFSe` tambem e lido no caminho `NFSe/infNFSe/DPS/infDPS/finNFSe`.
@@ -253,14 +233,6 @@ Limitacoes conhecidas:
 - Quando os totalizadores antigos de IBS/CBS nao existem, os valores de `gTribSN` podem compor os totais exibidos.
 
 Essas compatibilidades nao alteram o layout visual do DANFSe definido na NT 008 e nao autorizam fallback automatico entre `emit` e `prest`. Campos da NT 009 que nao possuem posicao propria no DANFSe NT 008 ficam disponiveis no modelo para validacao, auditoria ou uso por aplicacoes consumidoras.
-
-### Campos ausentes e fallback
-
-A NT 008 define caminhos XML especificos para os campos impressos. Por isso, a biblioteca nao copia automaticamente dados de outro grupo quando o caminho normativo esta ausente.
-
-Exemplo: o nome do Prestador / Fornecedor e lido de `NFSe/infNFSe/DPS/infDPS/prest/xNome`. Se o XML possuir `NFSe/infNFSe/emit/xNome`, mas nao possuir `prest/xNome`, o DANFSe exibira `-` e o validador retornara um aviso `data.required_missing`.
-
-Essa decisao evita imprimir informacao fora do caminho previsto no DANFSe. Se um projeto precisar de compatibilidade com XMLs incompletos, esse tratamento deve ser feito antes de chamar a biblioteca ou em um modo explicito ainda nao implementado.
 
 ### Saida do validador
 
@@ -290,3 +262,29 @@ uv run python -m compileall -q src tests
 
 - Nao use fallback entre grupos diferentes do XML para preencher informacoes.
 - Dados de exemplo, caches e artefatos gerados devem ficar fora do controle de versao.
+
+## Licenca
+
+Este projeto e publicado com uma licenca de uso propria, incluida em [LICENSE](LICENSE).
+
+Uso comercial exige mencao visivel de que o produto, servico ou distribuicao utiliza `danfse-brasil`.
+
+## Configuracao do repositorio
+
+About sugerido para o GitHub:
+
+```text
+Biblioteca Python para gerar DANFSe PDF/HTML a partir do XML nacional da NFS-e, seguindo a NT 008/2026 e compatibilidades NT 009/2026.
+```
+
+Website sugerido:
+
+```text
+https://github.com/joaovmgs/danfse-brasil#readme
+```
+
+Topicos sugeridos:
+
+```text
+danfse, nfse, nfs-e, nfse-nacional, nota-fiscal, nota-fiscal-servico, python, pdf, xml, weasyprint, rtc, ibs, cbs, brasil
+```
