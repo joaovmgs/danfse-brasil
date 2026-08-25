@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from .exceptions import InvalidNFSeXmlError
 from .models import MISSING_VALUE
-
 
 # Source:
 # https://servicodados.ibge.gov.br/api/v1/localidades/municipios
@@ -5586,10 +5584,8 @@ IBGE_MUNICIPALITIES = {
 def describe_municipality_state(code: str) -> str:
     if code == MISSING_VALUE:
         return MISSING_VALUE
-    try:
-        city, state = IBGE_MUNICIPALITIES[code]
-    except KeyError as exc:
-        raise InvalidNFSeXmlError(
-            f"Codigo IBGE de municipio sem descricao local mapeada: {code}"
-        ) from exc
+    city_state = IBGE_MUNICIPALITIES.get(code)
+    if city_state is None:
+        return f"Município {code}"
+    city, state = city_state
     return f"{city} / {state}"

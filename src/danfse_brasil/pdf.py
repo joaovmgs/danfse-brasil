@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from functools import cache
 from pathlib import Path
 
 from .constants import DEFAULT_WINDOWS_WEASYPRINT_DLL_DIR
@@ -24,31 +25,39 @@ def _configure_windows_dll_search_path() -> None:
 _configure_windows_dll_search_path()
 
 
+@cache
+def _weasyprint_runtime():
+    try:
+        from weasyprint import HTML
+        from weasyprint.text.fonts import FontConfiguration
+    except ImportError as exc:
+        raise RuntimeError("Dependencia weasyprint nao instalada. Execute: uv sync") from exc
+    return HTML, FontConfiguration()
+
+
 def render_header_pdf(data: HeaderData, output: str | Path) -> Path:
     """Render the implemented DANFSe header to a PDF file."""
 
-    try:
-        from weasyprint import HTML
-    except ImportError as exc:
-        raise RuntimeError("Dependencia weasyprint nao instalada. Execute: uv sync") from exc
-
+    html_class, font_config = _weasyprint_runtime()
     output_path = Path(output)
     html = render_header_html(data)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    HTML(string=html, base_url=str(output_path.parent.resolve())).write_pdf(output_path)
+    html_class(string=html, base_url=str(output_path.parent.resolve())).write_pdf(
+        output_path,
+        font_config=font_config,
+    )
     return output_path
 
 
 def render_danfse_pdf(data: DanfseData, output: str | Path) -> Path:
     """Render the implemented DANFSe blocks to a PDF file."""
 
-    try:
-        from weasyprint import HTML
-    except ImportError as exc:
-        raise RuntimeError("Dependencia weasyprint nao instalada. Execute: uv sync") from exc
-
+    html_class, font_config = _weasyprint_runtime()
     output_path = Path(output)
     html = render_danfse_html(data)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    HTML(string=html, base_url=str(output_path.parent.resolve())).write_pdf(output_path)
+    html_class(string=html, base_url=str(output_path.parent.resolve())).write_pdf(
+        output_path,
+        font_config=font_config,
+    )
     return output_path

@@ -6,7 +6,6 @@ must be added with their normative source before they are rendered.
 
 from __future__ import annotations
 
-from .exceptions import InvalidNFSeXmlError
 from .models import MISSING_VALUE
 
 TP_EMIT = {
@@ -136,6 +135,6 @@ TP_RET_PIS_COFINS = {
 def describe(mapping: dict[str, str], value: str | None) -> str:
     if value is None or value == "" or value == MISSING_VALUE:
         return MISSING_VALUE
-    if value not in mapping:
-        raise InvalidNFSeXmlError(f"Codigo sem descricao normativa mapeada: {value}")
-    return mapping[value]
+    # A NFS-e pode trazer códigos novos antes de eles entrarem nesta tabela.
+    # Preservar o valor permite gerar o DANFSe sem interromper a exportação.
+    return mapping.get(value, f"Código {value}")

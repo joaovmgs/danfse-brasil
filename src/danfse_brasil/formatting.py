@@ -18,7 +18,7 @@ def strip_nfse_prefix(value: str | None) -> str:
     value = missing_if_blank(value)
     if value == MISSING_VALUE:
         return value
-    return value[3:] if value.startswith("NFS") else value
+    return value.removeprefix("NFS")
 
 
 def format_date(value: str | None) -> str:

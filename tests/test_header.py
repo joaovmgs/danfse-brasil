@@ -1,10 +1,16 @@
-from pathlib import Path
 import sys
-import types
 import tempfile
+import types
+from pathlib import Path
 from unittest import TestCase
 
+from danfse_brasil.compliance import REQUIRED_FONTS
+from danfse_brasil.formatting import format_cnpj
+from danfse_brasil.html import render_danfse_html, render_header_html
 from danfse_brasil.models import CONSULTA_PUBLICA_URL
+from danfse_brasil.municipalities import describe_municipality_state
+from danfse_brasil.pdf import _weasyprint_runtime, render_header_pdf
+from danfse_brasil.validation import validate_danfse_data, validate_layout_constants
 from danfse_brasil.xml import (
     parse_complementary_info,
     parse_customer,
@@ -15,16 +21,10 @@ from danfse_brasil.xml import (
     parse_ibs_cbs_taxation,
     parse_intermediary,
     parse_municipal_taxation,
+    parse_receipt,
     parse_service,
     parse_total,
-    parse_receipt,
 )
-from danfse_brasil.html import render_danfse_html, render_header_html
-from danfse_brasil.pdf import render_header_pdf
-from danfse_brasil.compliance import REQUIRED_FONTS
-from danfse_brasil.formatting import format_cnpj
-from danfse_brasil.municipalities import describe_municipality_state
-from danfse_brasil.validation import validate_danfse_data, validate_layout_constants
 
 
 class HeaderParsingTest(TestCase):
@@ -133,7 +133,22 @@ class HeaderParsingTest(TestCase):
                 test_case.assertEqual(format, "PNG")
                 buffer.write(b"png")
 
-        fake_qrcode = types.SimpleNamespace(make=lambda value: FakeImage())
+        class FakeQRCode:
+            def __init__(self, box_size, border):
+                test_case.assertEqual(box_size, 2)
+                test_case.assertEqual(border, 2)
+
+            def add_data(self, value):
+                test_case.assertEqual(value, self_data.consultation_url)
+
+            def make(self, fit):
+                test_case.assertTrue(fit)
+
+            def make_image(self):
+                return FakeImage()
+
+        self_data = self.data
+        fake_qrcode = types.SimpleNamespace(QRCode=FakeQRCode)
         original = sys.modules.get("qrcode")
         sys.modules["qrcode"] = fake_qrcode
         try:
@@ -157,12 +172,12 @@ class HeaderParsingTest(TestCase):
     def test_declares_required_normative_fonts(self):
         self.assertEqual(REQUIRED_FONTS, ("Arial", "Microsoft Sans Serif"))
 
-    def test_extracts_provider_fields_without_using_emit_fallbacks(self):
+    def test_extracts_provider_fields_using_emit_fallback(self):
         provider = self.document.provider
         self.assertEqual(provider.tax_id, "02.378.779/0022-33")
         self.assertEqual(provider.municipal_registration, "290355")
         self.assertEqual(provider.phone, "1332119500")
-        self.assertEqual(provider.name, "-")
+        self.assertEqual(provider.name, "MSC MEDITERRANEAN SHIPPING DO BRASIL LTDA")
         self.assertEqual(provider.municipality_state, "-")
         self.assertEqual(provider.ibge_cep, "-")
         self.assertEqual(provider.address, "-")
@@ -477,35 +492,44 @@ class HeaderParsingTest(TestCase):
         self.assertEqual(validate_layout_constants(), [])
         issues = validate_danfse_data(self.document)
         self.assertFalse([issue for issue in issues if issue.severity == "error"])
-        self.assertTrue(
+        self.assertFalse(
             any(
-                issue.code == "data.required_missing"
-                and "provider.name" in issue.message
-                and "DPS/infDPS/prest/xNome" in issue.message
+                issue.code == "data.required_missing" and "provider.name" in issue.message
                 for issue in issues
             )
         )
 
     def test_renders_header_pdf_with_weasyprint(self):
+        class FakeFontConfiguration:
+            pass
+
         class FakeHTML:
             def __init__(self, string, base_url):
                 self.string = string
                 self.base_url = base_url
 
-            def write_pdf(self, output):
+            def write_pdf(self, output, font_config):
+                self.assert_font_config = font_config
                 Path(output).write_bytes(b"%PDF-1.7\n")
 
         fake_weasyprint = types.SimpleNamespace(HTML=FakeHTML)
-        original = sys.modules.get("weasyprint")
+        fake_fonts = types.SimpleNamespace(FontConfiguration=FakeFontConfiguration)
+        module_names = ("weasyprint", "weasyprint.text", "weasyprint.text.fonts")
+        originals = {name: sys.modules.get(name) for name in module_names}
         sys.modules["weasyprint"] = fake_weasyprint
+        sys.modules["weasyprint.text"] = types.SimpleNamespace(fonts=fake_fonts)
+        sys.modules["weasyprint.text.fonts"] = fake_fonts
         output = Path(__file__).resolve().parents[1] / "test-header-output.pdf"
         try:
+            _weasyprint_runtime.cache_clear()
             result = render_header_pdf(self.data, output)
             self.assertEqual(result, output)
             self.assertTrue(output.read_bytes().startswith(b"%PDF"))
         finally:
+            _weasyprint_runtime.cache_clear()
             output.unlink(missing_ok=True)
-            if original is None:
-                del sys.modules["weasyprint"]
-            else:
-                sys.modules["weasyprint"] = original
+            for name, original in originals.items():
+                if original is None:
+                    del sys.modules[name]
+                else:
+                    sys.modules[name] = original

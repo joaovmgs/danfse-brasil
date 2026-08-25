@@ -8,6 +8,7 @@ from io import BytesIO
 
 from . import layout
 from .constants import DANFSE_VERSION_LABEL, DOCUMENT_TITLE, MISSING_VALUE
+from .logo import NFSE_LOGO_DATA_URI
 from .models import (
     ComplementaryInfoData,
     CustomerData,
@@ -18,7 +19,6 @@ from .models import (
     IbsCbsTaxationData,
     IntermediaryData,
     MunicipalTaxationData,
-    NFSE_LOGO_URL,
     ProviderData,
     ReceiptData,
     ServiceData,
@@ -108,7 +108,7 @@ def render_danfse_html(data: DanfseData) -> str:
   <main class="page">
     <div class="page-border"></div>
     <section class="box shaded section-line" style="{layout.HEADER.css()}"></section>
-    <img class="logo" src="{NFSE_LOGO_URL}" alt="NFS-e">
+    <img class="logo" src="{NFSE_LOGO_DATA_URI}" alt="NFS-e">
     <section class="title">
       <div>{escape(DANFSE_VERSION_LABEL)}</div>
       <div>{escape(DOCUMENT_TITLE)}</div>
@@ -514,7 +514,10 @@ def _qr_code_data_uri(value: str) -> str:
     except ImportError as exc:
         raise RuntimeError("Dependencia qrcode nao instalada. Execute: pip install -e .") from exc
 
-    image = qrcode.make(value)
+    qr_code = qrcode.QRCode(box_size=2, border=2)
+    qr_code.add_data(value)
+    qr_code.make(fit=True)
+    image = qr_code.make_image()
     buffer = BytesIO()
     image.save(buffer, format="PNG")
     encoded = base64.b64encode(buffer.getvalue()).decode("ascii")

@@ -20,13 +20,13 @@ class Box:
             f"top:{self.top_cm:.2f}cm;"
         )
 
-    def at_top(self, top_cm: float) -> "Box":
+    def at_top(self, top_cm: float) -> Box:
         return Box(self.height_cm, self.width_cm, self.left_cm, top_cm)
 
-    def shifted(self, delta_top_cm: float) -> "Box":
+    def shifted(self, delta_top_cm: float) -> Box:
         return self.at_top(self.top_cm + delta_top_cm)
 
-    def with_height(self, height_cm: float) -> "Box":
+    def with_height(self, height_cm: float) -> Box:
         return Box(height_cm, self.width_cm, self.left_cm, self.top_cm)
 
 

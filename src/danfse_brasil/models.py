@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .constants import MISSING_VALUE, NFSE_LOGO_URL, PUBLIC_CONSULTATION_URL
+from .constants import MISSING_VALUE, PUBLIC_CONSULTATION_URL
 
 CONSULTA_PUBLICA_URL = PUBLIC_CONSULTATION_URL
 

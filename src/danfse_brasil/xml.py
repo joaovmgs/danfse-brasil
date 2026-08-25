@@ -40,6 +40,7 @@ from .formatting import (
     strip_nfse_prefix,
 )
 from .models import (
+    MISSING_VALUE,
     ComplementaryInfoData,
     CustomerData,
     DanfseData,
@@ -48,7 +49,6 @@ from .models import (
     HeaderData,
     IbsCbsTaxationData,
     IntermediaryData,
-    MISSING_VALUE,
     MunicipalTaxationData,
     ProviderData,
     ReceiptData,
@@ -70,7 +70,7 @@ def parse_danfse(xml_file: str | Path) -> DanfseData:
 
     return DanfseData(
         header=_parse_header(inf_nfse, inf_dps),
-        provider=_parse_provider(inf_dps),
+        provider=_parse_provider(inf_dps, inf_nfse),
         customer=_parse_customer(inf_dps),
         destination=_parse_destination(inf_dps),
         intermediary=_parse_intermediary(inf_dps),
@@ -168,7 +168,7 @@ def _parse_header(inf_nfse: ET.Element, inf_dps: ET.Element) -> HeaderData:
     )
 
 
-def _parse_provider(inf_dps: ET.Element) -> ProviderData:
+def _parse_provider(inf_dps: ET.Element, inf_nfse: ET.Element | None = None) -> ProviderData:
     prest = _child(inf_dps, "prest")
     if prest is None:
         raise InvalidNFSeXmlError("XML nao contem NFSe/infNFSe/DPS/infDPS/prest.")
@@ -178,11 +178,15 @@ def _parse_provider(inf_dps: ET.Element) -> ProviderData:
     end_nac = _child(end, "endNac")
     end_ext = _child(end, "endExt")
 
+    provider_name = _text(prest, "xNome")
+    if not provider_name and inf_nfse is not None:
+        provider_name = _text(_child(inf_nfse, "emit"), "xNome")
+
     return ProviderData(
         tax_id=_format_tax_id(prest),
         municipal_registration=missing_if_blank(_text(prest, "IM")),
         phone=missing_if_blank(_text(prest, "fone")),
-        name=ellipsize(missing_if_blank(_text(prest, "xNome")), 80),
+        name=ellipsize(missing_if_blank(provider_name), 80),
         municipality_state=_provider_municipality_state(end_nac, end_ext),
         ibge_cep=_provider_ibge_cep(end_nac, end_ext),
         address=ellipsize(
@@ -662,7 +666,7 @@ def _first_present_value(*values: str | None) -> str:
 
 
 def _sum_decimal_strings(*values: str | None) -> str:
-    total = Decimal("0")
+    total = Decimal(0)
     found = False
     for value in values:
         normalized = missing_if_blank(value)
