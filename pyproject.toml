@@ -37,7 +37,7 @@ classifiers = [
 ]
 dependencies = [
   "qrcode[pil]>=7.4",
-  "weasyprint>=61.0",
+  "weasyprint>=70.0",
 ]
 
 [project.urls]
